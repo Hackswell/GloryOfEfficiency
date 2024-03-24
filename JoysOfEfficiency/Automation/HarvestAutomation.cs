@@ -4,7 +4,6 @@ using System.Linq;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
@@ -15,7 +14,6 @@ namespace JoysOfEfficiency.Automation
 {
     internal class HarvestAutomation
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
         private static Config Config => InstanceHolder.Config;
 
         private static readonly Logger Logger = new Logger("HarvestAutomation");
@@ -69,9 +67,9 @@ namespace JoysOfEfficiency.Automation
                     continue;
                 }
 
-                if (dirt.crop.regrowAfterHarvest.Value == -1 || dirt.crop.forageCrop.Value)
+                if (dirt.crop.RegrowsAfterHarvest() == false || dirt.crop.forageCrop.Value)
                 {
-                    dirt.destroyCrop(loc, true, location);
+                    dirt.destroyCrop(true);
                 }
             }
             foreach (IndoorPot pot in Util.GetObjectsWithin<IndoorPot>(radius))
@@ -87,9 +85,9 @@ namespace JoysOfEfficiency.Automation
                     continue;
                 }
 
-                if (dirt.crop.regrowAfterHarvest.Value == -1 || dirt.crop.forageCrop.Value)
+                if (dirt.crop.RegrowsAfterHarvest() == false || dirt.crop.forageCrop.Value)
                 {
-                    dirt.destroyCrop(pot.TileLocation, true, location);
+                    dirt.destroyCrop(true);
                 }
             }
         }
@@ -155,7 +153,7 @@ namespace JoysOfEfficiency.Automation
             }
             else
             {
-                string name = dirt.crop.forageCrop.Value ? Util.GetItemName(dirt.crop.whichForageCrop.Value) : Util.GetItemName(dirt.crop.indexOfHarvest.Value);
+                string name = dirt.crop.whichForageCrop.Value;
                 if (name == "")
                 {
                     return;
@@ -178,7 +176,7 @@ namespace JoysOfEfficiency.Automation
                 HoeDirt dirt = kv.Value;
                 if (dirt.crop != null && dirt.crop.dead.Value)
                 {
-                    dirt.destroyCrop(loc, true, location);
+                    dirt.destroyCrop(true);
                 }
 
             }
@@ -188,7 +186,7 @@ namespace JoysOfEfficiency.Automation
                 HoeDirt dirt = pot.hoeDirt.Value;
                 if (dirt?.crop != null && dirt.crop.dead.Value)
                 {
-                    dirt.destroyCrop(loc, true, location);
+                    dirt.destroyCrop(true);
                 }
             }
         }
@@ -198,17 +196,17 @@ namespace JoysOfEfficiency.Automation
             int radius = InstanceHolder.Config.AutoShakeRadius;
             foreach (Bush bush in Game1.currentLocation.largeTerrainFeatures.OfType<Bush>())
             {
-                Vector2 loc = bush.tilePosition.Value;
-                Vector2 diff = loc - Game1.player.getTileLocation();
+                Vector2 loc = bush.Tile;
+                Vector2 diff = loc - Game1.player.Tile;
                 if (Math.Abs(diff.X) > radius || Math.Abs(diff.Y) > radius)
                     continue;
 
                 if (IsBushFruited(bush))
-                    bush.performUseAction(loc, Game1.currentLocation);
+                    bush.performUseAction(loc);
             }
         }
 
-        public static void ShakeNearbyFruitedTree()
+        public static void ShakeNearbyFruitedTree()     // RCB TODO... Broken for coconut trees [fine with bananas]
         {
             foreach (KeyValuePair<Vector2, TerrainFeature> kv in Util.GetFeaturesWithin<TerrainFeature>(InstanceHolder.Config.AutoShakeRadius))
             {
@@ -225,44 +223,44 @@ namespace JoysOfEfficiency.Automation
                             }
 
                             int num2;
-                            switch (tree.treeType.Value)
+                            switch (tree.treeType.Value)    // treeType.Value is now a string!  -RCB
                             {
-                                case 3:
-                                    num2 = 311;
+                                case "3":
+                                    num2 = 311;     // Pine Cone
                                     break;
-                                case 1:
-                                    num2 = 309;
+                                case "1":
+                                    num2 = 309;     // Acorn
                                     break;
-                                case 2:
-                                    num2 = 310;
+                                case "2":
+                                    num2 = 310;     // Maple Seed
                                     break;
-                                case 6:
-                                case 9:
-                                    num2 = 88;
+                                case "6":
+                                case "9":
+                                    num2 = 88;      // Coconut
                                     break;
                                 default:
                                     num2 = -1;
                                     break;
                             }
 
-                            if (Game1.currentSeason.Equals("fall") && tree.treeType.Value == 2 &&
+                            if (Game1.currentSeason.Equals("fall") && tree.treeType.Value == "2" &&
                                 Game1.dayOfMonth >= 14)
                             {
-                                num2 = 408;
+                                num2 = 408;         // Hazelnut
                             }
 
                             if (num2 != -1)
-                            { 
-                                Reflection.GetMethod(tree, "shake").Invoke(loc, false, Game1.currentLocation);
+                            {
+                                tree.shake(loc, false);
                                 Logger.Log($@"Shook fruited tree @{loc}");
                             }
                         }
 
                         break;
                     case FruitTree fruitTree:
-                        if (fruitTree.growthStage.Value >= 4 && fruitTree.fruitsOnTree.Value > 0 && !fruitTree.stump.Value)
+                        if (fruitTree.growthStage.Value >= 4 && fruitTree.fruit.Count > 0 && !fruitTree.stump.Value)
                         {
-                            fruitTree.shake(loc, false, Game1.currentLocation);
+                            fruitTree.shake(loc, false);
                             Logger.Log($@"Shook fruited tree @{loc}");
                         }
                         break;
@@ -279,20 +277,20 @@ namespace JoysOfEfficiency.Automation
 
         private static bool IsBlackListed(Crop crop)
         {
-            int index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
-            return InstanceHolder.Config.HarvestException.Contains(index);
+            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            return InstanceHolder.Config.HarvestException.Contains(Int32.Parse(index));
         }
 
         private static bool ToggleBlackList(Crop crop)
         {
-            int index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
             if (IsBlackListed(crop))
             {
-                InstanceHolder.Config.HarvestException.Remove(index);
+                InstanceHolder.Config.HarvestException.Remove(Int32.Parse(index));
             }
             else
             {
-                InstanceHolder.Config.HarvestException.Add(index);
+                InstanceHolder.Config.HarvestException.Add(Int32.Parse(index));
             }
 
             InstanceHolder.WriteConfig();
@@ -339,7 +337,7 @@ namespace JoysOfEfficiency.Automation
         {
             if (IsBerryBush(bush) || IsTeaBush(bush))
             {
-                return bush.tileSheetOffset.Value == 1 && bush.inBloom(Game1.currentSeason, Game1.dayOfMonth);
+                return bush.tileSheetOffset.Value == 1 && bush.inBloom();
             }
 
             return false;

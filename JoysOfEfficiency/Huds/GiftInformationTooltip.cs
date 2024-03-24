@@ -29,7 +29,7 @@ namespace JoysOfEfficiency.Huds
                 return;
             }
 
-            List<NPC> npcList = player.currentLocation.characters.Where(a => a != null && a.isVillager()).ToList();
+            List<NPC> npcList = player.currentLocation.characters.Where(a => a != null && a.IsVillager).ToList();
             foreach (NPC npc in npcList)
             {
                 Rectangle npcRect = new Rectangle(
@@ -62,7 +62,7 @@ namespace JoysOfEfficiency.Huds
                         key.Append("gavetoday.");
                         _unableToGift = true;
                     }
-                    else if (npc.canReceiveThisItemAsGift(player.CurrentItem))
+                    else if (npc.tryToReceiveActiveObject(player, probe: true))
                     {
                         switch (npc.getGiftTasteForThisItem(player.CurrentItem))
                         {
@@ -90,7 +90,7 @@ namespace JoysOfEfficiency.Huds
                 }
                 switch (npc.Gender)
                 {
-                    case NPC.female:
+                    case Gender.Female:
                         key.Append("female");
                         break;
                     default:

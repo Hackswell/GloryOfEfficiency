@@ -40,12 +40,12 @@ namespace JoysOfEfficiency.Automation
             int quality = obj.Quality;
             Random random = new Random((int)Game1.uniqueIDForThisGame / 2 + (int)Game1.stats.DaysPlayed + (int)vector.X + (int)vector.Y * 777);
 
-            if (who.professions.Contains(16) && obj.isForage(loc))
+            if (who.professions.Contains(16) && obj.isForage())
             {
                 obj.Quality = 4;
             }
 
-            else if (obj.isForage(loc))
+            else if (obj.isForage())
             {
                 if (random.NextDouble() < who.ForagingLevel / 30f)
                 {
@@ -73,7 +73,7 @@ namespace JoysOfEfficiency.Automation
 
                 if (!loc.isFarmBuildingInterior())
                 {
-                    if (obj.isForage(loc))
+                    if (obj.isForage())
                     {
                         who.gainExperience(2, 7);
                     }
@@ -98,7 +98,7 @@ namespace JoysOfEfficiency.Automation
 
         private static bool IsGinger(Crop crop)
         {
-            return crop != null && crop.forageCrop.Value && crop.whichForageCrop.Value == Crop.forageCrop_ginger;
+            return crop != null && crop.forageCrop.Value && crop.whichForageCrop.Value == Crop.forageCrop_ginger.ToString();
         }
 
         private static void CollectGinger(GameLocation loc, Vector2 pos, HoeDirt dirt)
@@ -113,7 +113,7 @@ namespace JoysOfEfficiency.Automation
             if (dirt.crop.hitWithHoe((int)pos.X, (int)pos.Y, loc,dirt))
             {
                 who.Stamina -= stamina;
-                dirt.destroyCrop(pos, true, loc);
+                dirt.destroyCrop(true);
             }
         }
     }

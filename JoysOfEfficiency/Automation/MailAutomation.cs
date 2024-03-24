@@ -1,7 +1,6 @@
-﻿using System.Linq;
-using JoysOfEfficiency.Core;
+﻿using System;
+using System.Linq;
 using JoysOfEfficiency.Utils;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Quests;
@@ -10,13 +9,11 @@ namespace JoysOfEfficiency.Automation
 {
     internal class MailAutomation
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
-
         private static readonly Logger Logger = new Logger("MailAutomation");
 
         public static void CollectMailAttachmentsAndQuests(LetterViewerMenu menu)
         {
-            int questId = menu.questID;
+            String questId = menu.questID;
 
             if (menu.itemsLeftToGrab())
             {
@@ -43,7 +40,7 @@ namespace JoysOfEfficiency.Automation
                 }
             }
 
-            if (questId == -1)
+            if (questId == null)
             {
                 return;
             }
@@ -51,7 +48,7 @@ namespace JoysOfEfficiency.Automation
             Logger.Log($"You started Quest: '{Quest.getQuestFromId(questId).questTitle}'.");
             Game1.player.addQuest(questId);
             Game1.playSound("newArtifact");
-            menu.questID = -1;
+            menu.questID = null;
         }
 
         private static bool CanPlayerAcceptsItemPartially(Item item)

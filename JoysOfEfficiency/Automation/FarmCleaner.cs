@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Tools;
@@ -15,7 +14,6 @@ namespace JoysOfEfficiency.Automation
     {
         private static Multiplayer Multiplayer => InstanceHolder.Multiplayer;
         private static Config Config => InstanceHolder.Config;
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
 
         private static readonly Logger Logger = new Logger("FarmCleaner");
 
@@ -57,7 +55,7 @@ namespace JoysOfEfficiency.Automation
 
         private static void CutWeeds(GameLocation farm, Object obj, Vector2 loc)
         {
-            Reflection.GetMethod(obj, "cutWeed").Invoke(Game1.player, farm);
+            obj.cutWeed(Game1.player);
             farm.removeObject(loc, false);
         }
 
@@ -74,7 +72,7 @@ namespace JoysOfEfficiency.Automation
 
             obj.Fragility = 2;
             farm.playSound("axchop");
-            farm.debris.Add(new Debris(new Object(388, 1), loc * 64f + new Vector2(32f, 32f)));
+            farm.debris.Add(new Debris(new Object("388", 1), loc * 64f + new Vector2(32f, 32f)));
             Game1.createRadialDebris(farm, 12, (int)loc.X, (int)loc.Y, Game1.random.Next(4, 10), false);
             Multiplayer.broadcastSprites(farm, new TemporaryAnimatedSprite(12, new Vector2(loc.X * 64f, loc.Y * 64f), Color.White, 8, Game1.random.NextDouble() < 0.5, 50f));
 
@@ -110,7 +108,7 @@ namespace JoysOfEfficiency.Automation
                 }
             }
 
-            if (@object.ParentSheetIndex < 200 && !Game1.objectInformation.ContainsKey(@object.ParentSheetIndex + 1))
+            if (@object.ParentSheetIndex < 200 && !Game1.objectData.ContainsKey(""+(@object.ParentSheetIndex + 1)))
             {
                 Multiplayer.broadcastSprites(location,
                     new TemporaryAnimatedSprite(@object.ParentSheetIndex + 1, 300f,
@@ -131,7 +129,7 @@ namespace JoysOfEfficiency.Automation
                 acceleration = new Vector2(0.0f, 1f / 500f),
                 alphaFade = 0.015f
             });
-            location.OnStoneDestroyed(@object.ParentSheetIndex, num1, num2, Game1.player);
+            location.OnStoneDestroyed(""+@object.ParentSheetIndex, num1, num2, Game1.player);
             if (@object.MinutesUntilReady > 0)
                 return false;
             location.Objects.Remove(new Vector2(num1, num2));

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.GameData.Locations;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Tools;
@@ -18,8 +19,6 @@ namespace JoysOfEfficiency.Huds
 {
     public class FishingProbabilitiesBox
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
-
         private static readonly Logger Logger = new Logger("FishingProbabilitiesInfo");
 
         private static Dictionary<int, double> _fishingDictionary;
@@ -39,7 +38,7 @@ namespace JoysOfEfficiency.Huds
                     Rectangle rectangle = new Rectangle(location.fishSplashPoint.X * 64, location.fishSplashPoint.Y * 64, 64, 64);
                     Rectangle value = new Rectangle((int)rod.bobber.X - 80, (int)rod.bobber.Y - 80, 64, 64);
                     bool flag = rectangle.Intersects(value);
-                    int clearWaterDistance = Reflection.GetField<int>(rod, "clearWaterDistance").GetValue();
+                    int clearWaterDistance = rod.clearWaterDistance;
 
                     _fishingDictionary = GetFishes(location, rod.attachments[0]?.ParentSheetIndex ?? -1, clearWaterDistance + (flag ? 1 : 0), Game1.player, InstanceHolder.Config.MorePreciseProbabilities ? InstanceHolder.Config.TrialOfExamine : 1);
                 }
@@ -101,7 +100,9 @@ namespace JoysOfEfficiency.Huds
 
             Dictionary<string, string> dictionary = Game1.content.Load<Dictionary<string, string>>("Data\\Locations");
             string key = locationName ?? Game1.currentLocation.Name;
-            if (key.Equals("WitchSwamp") && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone") && !Game1.player.hasItemInInventory(308, 1))
+            if (key.Equals("WitchSwamp")
+                && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone")
+                && !Game1.player.Items.ContainsId("(O)308", 1))
             {
                 return new Dictionary<int, double>
                 {
@@ -132,7 +133,10 @@ namespace JoysOfEfficiency.Huds
                         string[] array3 = dictionary3[Convert.ToInt32(t)].Split('/');
                         string[] array4 = array3[5].Split(' ');
                         int num2 = Convert.ToInt32(dictionary2[t]);
-                        if (num2 == -1 || Game1.currentLocation.getFishingLocation(who.getTileLocation()) == num2)
+                        String fishAreaId = "";
+                        FishAreaData fishAreaData;
+                        Game1.currentLocation.TryGetFishAreaForTile(who.Tile, out fishAreaId, out fishAreaData);
+                        if (num2 == -1 || Int32.Parse(fishAreaId) == num2)
                         {
                             int num3 = 0;
                             while (num3 < array4.Length)
@@ -367,7 +371,7 @@ namespace JoysOfEfficiency.Huds
                 foreach (KeyValuePair<int, double> kv in probabilities)
                 {
                     string text = $"{kv.Value * 100:f1}%";
-                    Object fish = new Object(kv.Key, 1);
+                    Object fish = new Object(""+kv.Key, 1);
 
                     fish.drawInMenu(b, new Vector2(x + 8, y), 1.0f);
                     Utility.drawTextWithShadow(b, text, font, new Vector2(x + 32 + square, y + 16), Color.Black);

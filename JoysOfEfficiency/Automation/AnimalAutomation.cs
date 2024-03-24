@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
-using Netcode;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Characters;
@@ -14,7 +13,6 @@ namespace JoysOfEfficiency.Automation
 {
     internal class AnimalAutomation
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
         private static Config Config => InstanceHolder.Config;
 
         private static readonly Logger Logger = new Logger("AnimalAutomation");
@@ -26,8 +24,8 @@ namespace JoysOfEfficiency.Automation
             {
                 FarmAnimal animal = kv.Value;
                 Logger.Log(
-                    $"Warped {animal.displayName}({animal.shortDisplayType()}) to {animal.displayHouse}@[{animal.homeLocation.X}, {animal.homeLocation.Y}]");
-                animal.warpHome(farm, animal);
+                    $"Warped {animal.displayName}({animal.shortDisplayType()}) to {animal.displayHouse}@[{animal.home.animalDoor.X}, {animal.home.animalDoor.Y}]");
+                animal.warpHome();
             }
         }
 
@@ -49,34 +47,18 @@ namespace JoysOfEfficiency.Automation
             Farm farm = Game1.getFarm();
             foreach (Building building in farm.buildings)
             {
-                switch (building)
+                switch (building.buildingType.Value)
                 {
-                    case Coop coop:
+                    case "Coop":
+                    case "Barn":
                     {
-                        if (coop.indoors.Value is AnimalHouse house)
+                        if (building.indoors.Value is AnimalHouse house)
                         {
-                            if (house.animals.Any() && !coop.animalDoorOpen.Value)
+                            if (house.animals.Any() && !building.animalDoorOpen.Value)
                             {
-                                Logger.Log($"Opening coop door @[{coop.animalDoor.X},{coop.animalDoor.Y}]");
-                                coop.animalDoorOpen.Value = true;
-                                Reflection.GetField<NetInt>(coop, "animalDoorMotion").SetValue(new NetInt(-2));
+                                building.ToggleAnimalDoor(Game1.player);
                             }
                         }
-
-                        break;
-                    }
-                    case Barn barn:
-                    {
-                        if (barn.indoors.Value is AnimalHouse house)
-                        {
-                            if (house.animals.Any() && !barn.animalDoorOpen.Value)
-                            {
-                                Logger.Log($"Opening barn door @[{barn.animalDoor.X},{barn.animalDoor.Y}]");
-                                barn.animalDoorOpen.Value = true;
-                                Reflection.GetField<NetInt>(barn, "animalDoorMotion").SetValue(new NetInt(-3));
-                            }
-                        }
-
                         break;
                     }
                 }
@@ -88,32 +70,18 @@ namespace JoysOfEfficiency.Automation
             Farm farm = Game1.getFarm();
             foreach (Building building in farm.buildings)
             {
-                switch (building)
+                switch (building.buildingType.Value)
                 {
-                    case Coop coop:
+                    case "Coop":
+                    case "Barn":
                     {
-                        if (coop.indoors.Value is AnimalHouse house)
+                        if (building.indoors.Value is AnimalHouse house)
                         {
-                            if (house.animals.Any() && coop.animalDoorOpen.Value)
+                            if (house.animals.Any() && building.animalDoorOpen.Value)
                             {
-                                coop.animalDoorOpen.Value = false;
-                                Reflection.GetField<NetInt>(coop, "animalDoorMotion").SetValue(new NetInt(2));
+                                building.ToggleAnimalDoor(Game1.player);
                             }
                         }
-
-                        break;
-                    }
-                    case Barn barn:
-                    {
-                        if (barn.indoors.Value is AnimalHouse house)
-                        {
-                            if (house.animals.Any() && barn.animalDoorOpen.Value)
-                            {
-                                barn.animalDoorOpen.Value = false;
-                                Reflection.GetField<NetInt>(barn, "animalDoorMotion").SetValue(new NetInt(2));
-                            }
-                        }
-
                         break;
                     }
                 }
@@ -132,8 +100,9 @@ namespace JoysOfEfficiency.Automation
                 bool wasPet = WasPetToday(pet);
                 if (!wasPet)
                 {
-                    Logger.Log($"Petted {(pet is Dog ? "Dog" : "Cat")}'{pet.Name}' @{pet.getTileLocationPoint()}");
+                    Logger.Log($"Petted {(pet.petType.Value == "Dog" ? "Dog" : "Cat")}'{pet.Name}' @{pet.position}");
                     pet.checkAction(player, location); // Pet pet... lol
+
                 }
             }
         }
@@ -153,7 +122,7 @@ namespace JoysOfEfficiency.Automation
                 {
                     continue;
                 }
-                Logger.Log($"Petted {animal.displayType}'{animal.Name}' @{animal.getTileLocationPoint()}");
+                Logger.Log($"Petted {animal.displayType}'{animal.Name}' @{animal.position}");
                 animal.pet(Game1.player);
             }
         }
@@ -165,7 +134,7 @@ namespace JoysOfEfficiency.Automation
             foreach (FarmAnimal animal in Util.GetAnimalsList(player))
             {
                 string lowerType = animal.type.Value.ToLower();
-                if (animal.currentProduce.Value < 0 || animal.age.Value < animal.ageWhenMature.Value ||
+                if (animal.currentProduce.Value is null || animal.isBaby() ||
                     player.CurrentTool == null || !animal.GetBoundingBox().Intersects(bb))
                 {
                     continue;
@@ -177,20 +146,21 @@ namespace JoysOfEfficiency.Automation
                     continue;
 
                 if (!player.addItemToInventoryBool(
-                    new Object(Vector2.Zero, animal.currentProduce.Value, null, false, true, false, false)
-                    {
-                        Quality = animal.produceQuality.Value
-                    }))
+                    new StardewValley.Object(animal.currentProduce.Value,
+                        1,
+                        false,
+                        -1,
+                        animal.produceQuality.Value)))
                 {
                     continue;
                 }
 
                 switch (player.CurrentTool)
                 {
-                    case Shears _:
+                    case Shears:
                         Shears.playSnip(player);
                         break;
-                    case MilkPail _:
+                    case MilkPail:
                         player.currentLocation.localSound("Milking");
                         DelayedAction.playSoundAfterDelay("fishingRodBend", 300);
                         DelayedAction.playSoundAfterDelay("fishingRodBend", 1200);
@@ -200,12 +170,8 @@ namespace JoysOfEfficiency.Automation
 
                 animal.doEmote(20);
                 Game1.playSound("coin");
-                animal.currentProduce.Value = -1;
-                if (animal.showDifferentTextureWhenReadyForHarvest.Value)
-                {
-                    animal.Sprite.LoadTexture("Animals\\Sheared" + animal.type.Value);
-                }
-
+                animal.currentProduce.Value = null;
+                animal.ReloadTextureIfNeeded();
                 player.gainExperience(0, 5);
             }
         }

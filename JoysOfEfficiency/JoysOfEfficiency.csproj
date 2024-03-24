@@ -2,13 +2,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JoysOfEfficiency</RootNamespace>
     <AssemblyName>JoysOfEfficiency</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <Version>1.4.9</Version>
+    <Version>1.5.0</Version>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,12 +56,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Enums\" />
-  </ItemGroup>
-  <ItemGroup>
+  <ItemGroup>    
     <PackageReference Include="Lib.Harmony" Version="2.2.2" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.5" />    <!-- RCB: use 0.11.5 to avoid conflicts with DLL -->
+    <PackageReference Include="Mono.Cecil" Version="0.11.5" /> <!-- RCB: use 0.11.5 to avoid conflicts with DLL -->
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
   </ItemGroup>
 </Project>

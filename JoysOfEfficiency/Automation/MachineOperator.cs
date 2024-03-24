@@ -12,10 +12,12 @@ namespace JoysOfEfficiency.Automation
 {
     internal class MachineOperator
     {
+        private static readonly Logger Logger = new Logger("MachineOperator");
+
         public static void DepositIngredientsToMachines()
         {
             Farmer player = Game1.player;
-            if (player.CurrentItem == null || !(Game1.player.CurrentItem is SVObject item))
+            if (player.CurrentItem == null || !(player.CurrentItem is SVObject item))
             {
                 return;
             }
@@ -31,8 +33,8 @@ namespace JoysOfEfficiency.Automation
                     return;
                 }
 
-                bool flag = false;
                 bool accepted = obj.Name == "Furnace" ? CanFurnaceAcceptItem(item, player) : Utility.isThereAnObjectHereWhichAcceptsThisItem(currentLocation, item, (int)loc.X * tileSize, (int)loc.Y * tileSize);
+                Logger.Log($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
                 if (obj is Cask)
                 {
                     if (ModEntry.IsCoGOn || ModEntry.IsCaOn)
@@ -40,37 +42,36 @@ namespace JoysOfEfficiency.Automation
                         if (obj.performObjectDropInAction(item, true, player))
                         {
                             obj.heldObject.Value = null;
-                            flag = true;
+                            accepted = true;
                         }
                     }
-                    else if (currentLocation is Cellar && accepted)
+                    else if (currentLocation is not Cellar && accepted)
                     {
-                        flag = true;
+                        accepted = false;
+                    }
+                }
+                else if (obj.Name == "Crab Pot")
+                {
+                    if (item.Name == "Bait" || item.Name == "Magic Bait")
+                    {
+                        accepted = true;
+                        Logger.Log($"\tCrab Pot and {item.Name} are now ACCEPTED.");
                     }
                 }
                 else if (obj.Name == "Seed Maker")
                 {
-                    if (InstanceHolder.Config.AutoDepositSeedMaker == false)
-                    {
-                        flag = false;
-                    }
-                    else
-                    {
-                        flag = true;
-                    }
-                }
-                else if (accepted)
-                {
-                    flag = true;
+                    accepted = InstanceHolder.Config.AutoDepositSeedMaker == false ? false : true;
                 }
 
-                if (!flag)
+                if (!accepted)
                     continue;
 
+                Logger.Log($"Trying to drop {item.Name} into {obj}.");
+                // performObjectDropInAction but only if it's currently empty
                 obj.performObjectDropInAction(item, false, player);
                 if (!(obj.Name == "Furnace" || obj.Name == "Charcoal Kiln") || item.Stack == 0)
                 {
-                    player.reduceActiveItemByOne();
+//                    player.reduceActiveItemByOne();
                 }
 
                 return;
@@ -93,7 +94,7 @@ namespace JoysOfEfficiency.Automation
 
         private static bool CanFurnaceAcceptItem(Item item, Farmer player)
         {
-            if (player.getTallyOfObject(382, false) <= 0)
+            if (player.Items.ContainsId(Object.coalQID, 1))
                 return false;
             if (item.Stack < 5 && item.ParentSheetIndex != 80 && item.ParentSheetIndex != 82 && item.ParentSheetIndex != 330)
                 return false;
@@ -112,45 +113,14 @@ namespace JoysOfEfficiency.Automation
             return true;
         }
 
-
-
-
         private static bool IsObjectMachine(SVObject obj)
         {
-            if (obj is CrabPot)
-                return true;
-
-            if (!obj.bigCraftable.Value)
-                return false;
-
-            switch (obj.Name)
+            Logger.Log($"IsObjectMachine: Name: {obj.Name}");
+            if (InstanceHolder.Config.MachineTypes.Contains(obj.Name))
             {
-                case "Incubator":
-                case "Slime Incubator":
-                case "Keg":
-                case "Preserves Jar":
-                case "Cheese Press":
-                case "Mayonnaise Machine":
-                case "Loom":
-                case "Oil Maker":
-                case "Seed Maker":
-                case "Crystalarium":
-                case "Recycling Machine":
-                case "Furnace":
-                case "Charcoal Kiln":
-                case "Slime Egg-Press":
-                case "Cask":
-                case "Bee House":
-                case "Mushroom Box":
-                case "Statue Of Endless Fortune":
-                case "Statue Of Perfection":
-                case "Tapper":
-                case "Heavy Tapper":
-                case "Coffee Maker":
-                case "Worm Bin":
-                    return true;
-                default: return false;
+                return true;
             }
+            return false;
         }
     }
 }

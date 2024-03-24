@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
@@ -70,6 +71,42 @@ namespace JoysOfEfficiency.Core
         public bool AutoDepositSeedMaker { get; set; } = false;
         public bool AutoPullMachineResult { get; set; } = true;
         public int MachineRadius { get; set; } = 1;
+
+        public List<String> MachineTypes { get; set; } = new List<String>()
+        {
+            "Bee House",
+            "Cask",
+            "Charcoal Kiln",
+            "Cheese Press",
+            "Coffee Maker",
+            "Crab Pot",
+            "Crystalarium",
+            "Furnace",
+            "Heavy Tapper",
+            "Incubator",
+            "Keg",
+            "Loom",
+            "Mayonnaise Machine",
+            "Mushroom Box",
+            "Oil Maker",
+            "Preserves Jar",
+            "Recycling Machine",
+            "Seed Maker",
+            "Sewing Machine",
+            "Slime Egg-Press",
+            "Slime Incubator",
+            "Statue Of Endless Fortune",
+            "Statue Of Perfection",
+            "Tapper",
+            "Worm Bin",
+            "Deluxe Worm Bin",
+            "Dehydrator",
+            "Mushroom Log",
+            "Bait Maker",
+            "Heavy Furnace",
+            "Fish Smoker",
+            "Anvil"
+        };
 
         //Fishing Probabilities
         public bool FishingProbabilitiesInfo { get; set; } = false;

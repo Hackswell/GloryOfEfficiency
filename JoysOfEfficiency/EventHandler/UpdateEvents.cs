@@ -39,7 +39,7 @@ namespace JoysOfEfficiency.EventHandler
             {
                 return;
             }
-            
+
             IdlePause.OnTickUpdate();
 
             Farmer player = Game1.player;
@@ -51,7 +51,6 @@ namespace JoysOfEfficiency.EventHandler
             if (player.CurrentTool is FishingRod rod)
             {
                 FishingProbabilitiesBox.UpdateProbabilities(rod);
-
                 AutoFisher.AfkFishing();
             }
 
@@ -85,8 +84,7 @@ namespace JoysOfEfficiency.EventHandler
                 }
                 if (Game1.currentLocation is MineShaft shaft)
                 {
-                    bool isFallingDownShaft = InstanceHolder.Reflection.GetField<bool>(shaft, "isFallingDownShaft").GetValue();
-                    if (isFallingDownShaft)
+                    if (shaft.isFallingDownShaft)
                     {
                         return;
                     }
@@ -105,6 +103,7 @@ namespace JoysOfEfficiency.EventHandler
                 {
                     return;
                 }
+
                 FarmCleaner.OnEighthUpdate();
                 if (Conf.AutoEat)
                 {

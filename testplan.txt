@@ -1,0 +1,65 @@
+
++[Fence Gate Automation]
+
++[Farm Cleaner]			-- Should probably default to OFF, especially early game.
++[Watering Can Refiller]
++[Harvest Automation]
+	+Autofill watering can
+	+Water nearby crops
+	+Harvest nearby crops
+		+Does NOT harvest crops on exclusion list
+	+Destroy dead crops
+	+Shake trees / fruit trees
+
+O[MachineOperator]
+	Auto pull
+	Auto push  [Crab pot?  Cask?]
+	-- TODO: Furnace neither pushes nor pulls
+
++[Animal Automation]
+	+Pet nearby animals
+	+Pet nearby pets
+	+Auto shear/milk
+
++[Gift Information Tooltip]
+
++Balanced Mode [every 1s for balanced, super fast otherwise]
+
++[Mine HUD]
+
+[Food Automation]		-- UNTESTED
+	Auto eat
+
+[Shipping Estimator] -- Is this even needed in 1.6 any more?
+
+[FPS Counter]			-- UNTESTED
+
+[Trash can Scavenger]	-- UNTESTED
+O[Collectible Collector]
+	XSeed Spots			-- TODO
+	+Artifact auto digger
+	+Collect nearby collectibles
+	
+[Inventory Automation]
+	Treasure Auto-grab
+
+[Fishing]				-- UNTESTED
+	Fishing Probabilities Box
+	Fish Info HUD
+	Autofisher - AFK
+	Auto Reel Rod
+		
+[Flower Color Unifier]	-- UNTESTED
+	Unify Flower Colors
+	
+[Mail Automation]		-- UNTESTED
+
+[Idle Pause]			-- UNTESTED
+
+
+
+
+
+
+
+

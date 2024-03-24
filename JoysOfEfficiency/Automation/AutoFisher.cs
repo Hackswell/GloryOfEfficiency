@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
+using StardewValley.GameData.WorldMaps;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using StardewValley.SpecialOrders;
 using StardewValley.Tools;
 
 namespace JoysOfEfficiency.Automation
@@ -21,8 +23,6 @@ namespace JoysOfEfficiency.Automation
         private static bool CatchingTreasure { get; set; }
         private static int AutoFishingCounter { get; set; }
         private static int AfkCooltimeCounter { get; set; }
-
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
 
         public static void AfkFishing()
         {
@@ -74,9 +74,9 @@ namespace JoysOfEfficiency.Automation
             {
                 return;
             }
-            int whichFish = Reflection.GetField<int>(rod, "whichFish").GetValue();
+            String whichFish = rod.whichFish.QualifiedItemId;
 
-            if (!rod.isNibbling || !rod.isFishing || whichFish != -1 || rod.isReeling || rod.hit ||
+            if (!rod.isNibbling || !rod.isFishing || whichFish != null || rod.isReeling || rod.hit ||
                 rod.isTimingCast || rod.pullingOutOfWater || rod.fishCaught || rod.castedButBobberStillInAir)
             {
                 return;
@@ -87,12 +87,10 @@ namespace JoysOfEfficiency.Automation
 
         public static void CollectFish(Farmer who, FishingRod rod)
         {
-            IReflectedField<int> recastTimerMs = Reflection.GetField<int>(rod, "recastTimerMs");
-
-            int whichFish = Reflection.GetField<int>(rod, "whichFish").GetValue();
-            int fishQuality = Reflection.GetField<int>(rod, "fishQuality").GetValue();
-            
-            string itemCategory = Reflection.GetField<string>(rod, "itemCategory").GetValue();
+            int recastTimerMs = rod.recastTimerMs;
+            String whichFish = rod.whichFish.QualifiedItemId;
+            int fishQuality = rod.fishQuality;
+            String itemCategory = rod.getCategoryName();
 
             if (!Game1.isFestival())
             {
@@ -105,7 +103,7 @@ namespace JoysOfEfficiency.Automation
                 who.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors",
                     new Rectangle(653, 858, 1, 1), 9999f, 1, 1,
                     who.Position + new Vector2(Game1.random.Next(-3, 2) * 4, -32f), false, false,
-                    (float) (who.getStandingY() / 10000.0 + 1.0 / 500.0), 0.04f, Color.LightBlue, 5f, 0.0f,
+                    (float) (who.Tile.Y / 10000.0 + 1.0 / 500.0), 0.04f, Color.LightBlue, 5f, 0.0f,
                     0.0f, 0.0f)
                 {
                     acceleration = new Vector2(0.0f, 0.25f)
@@ -120,28 +118,28 @@ namespace JoysOfEfficiency.Automation
             who.currentLocation.localSound("coin");
             if (!rod.treasureCaught)
             {
-                recastTimerMs.SetValue(200);
-                Object @object = null;
+                rod.recastTimerMs = 200;
+                StardewValley.Object @object = null;
                 switch (itemCategory)
                 {
                     case "Object":
                     {
-                        @object = new Object(whichFish, 1, false, -1, fishQuality);
-                        if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM)
+                        @object = new StardewValley.Object(whichFish, 1, false, -1, fishQuality);
+                        if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
                         {
                             @object.questItem.Value = true;
                         }
 
-                        if (whichFish == 79 || whichFish == 842)
+                        if (whichFish == "79" || whichFish == "842")
                         {
                             @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
                             if (@object == null)
                                 return;
                         }
 
-                        if (rod.caughtDoubleFish)
+                        if (rod.numberOfFishCaught > 1)
                         {
-                            @object.Stack = 2;
+                            @object.Stack = rod.numberOfFishCaught;
                         }
 
                         break;
@@ -179,12 +177,12 @@ namespace JoysOfEfficiency.Automation
                 rod.showingTreasure = true;
                 who.UsingTool = true;
                 int initialStack = 1;
-                if (rod.caughtDoubleFish)
+                if (rod.numberOfFishCaught > 1)
                 {
-                    initialStack = 2;
+                    initialStack = rod.numberOfFishCaught;
                 }
 
-                Object @object = new Object(whichFish, initialStack, false, -1, fishQuality);
+                StardewValley.Object @object = new StardewValley.Object(whichFish, initialStack, false, -1, fishQuality);
                 if (Game1.player.team.specialOrders.Count > 0)
                 {
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
@@ -193,7 +191,7 @@ namespace JoysOfEfficiency.Automation
                     }
                 }
                 bool inventoryBool = who.addItemToInventoryBool(@object);
-                rod.animations.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors", new Rectangle(64, 1920, 32, 32), 500f, 1, 0, who.Position + new Vector2(-32f, -160f), false, false, (float)(who.getStandingY() / 10000.0 + 1.0 / 1000.0), 0.0f, Color.White, 4f, 0.0f, 0.0f, 0.0f)
+                rod.animations.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors", new Rectangle(64, 1920, 32, 32), 500f, 1, 0, who.Position + new Vector2(-32f, -160f), false, false, (float)(who.Tile.Y / 10000.0 + 1.0 / 1000.0), 0.0f, Color.White, 4f, 0.0f, 0.0f, 0.0f)
                 {
                     motion = new Vector2(0.0f, -0.128f),
                     timeBasedMotion = true,
@@ -213,19 +211,15 @@ namespace JoysOfEfficiency.Automation
                 return;
             }
 
-
-            IReflectedField<float> bobberSpeed = Reflection.GetField<float>(bar, "bobberBarSpeed");
-
-            float barPos = Reflection.GetField<float>(bar, "bobberBarPos").GetValue();
-            int barHeight = Reflection.GetField<int>(bar, "bobberBarHeight").GetValue();
-            float fishPos = Reflection.GetField<float>(bar, "bobberPosition").GetValue();
-            float treasurePos = Reflection.GetField<float>(bar, "treasurePosition").GetValue();
-            float distanceFromCatching = Reflection.GetField<float>(bar, "distanceFromCatching").GetValue();
-            bool treasureCaught = Reflection.GetField<bool>(bar, "treasureCaught").GetValue();
-            bool treasure = Reflection.GetField<bool>(bar, "treasure").GetValue();
-            float treasureAppearTimer = Reflection.GetField<float>(bar, "treasureAppearTimer").GetValue();
-            float bobberBarSpeed = bobberSpeed.GetValue();
-
+            float barPos = bar.bobberBarPos;
+            int barHeight = bar.bobberBarHeight;
+            float fishPos = bar.bobberPosition;
+            float treasurePos = bar.treasurePosition;
+            float distanceFromCatching = bar.distanceFromCatching;
+            bool treasureCaught = bar.treasureCaught;
+            bool treasure = bar.treasure;
+            float treasureAppearTimer = bar.treasureAppearTimer;
+            float bobberBarSpeed = bar.bobberBarSpeed;
             float top = barPos;
 
             if (treasure && treasureAppearTimer <= 0 && !treasureCaught)
@@ -258,7 +252,7 @@ namespace JoysOfEfficiency.Automation
                 bobberBarSpeed = strength;
             }
 
-            bobberSpeed.SetValue(bobberBarSpeed);
+            bar.bobberBarSpeed = bobberBarSpeed;
         }
 
         public static void ToggleAfkFishing()

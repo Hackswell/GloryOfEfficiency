@@ -27,8 +27,9 @@ namespace JoysOfEfficiency.EventHandler
             {
                 for (int j = -radius; j <= radius; j++)
                 {
-                    int x = player.getTileX() + i;
-                    int y = player.getTileY() + j;
+                    Point currPos = player.TilePoint;
+                    int x = currPos.X + i;
+                    int y = currPos.Y + j;
                     Vector2 loc = new Vector2(x, y);
                     if (!location.Objects.ContainsKey(loc) || location.Objects[loc].ParentSheetIndex != 590 ||
                         location.isTileHoeDirt(loc))

@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
@@ -22,18 +21,11 @@ namespace JoysOfEfficiency.Utils
     {
         private static ITranslationHelper Translation => InstanceHolder.Translation;
         private static Config Config => InstanceHolder.Config;
-
-
         private static int _lastItemIndex;
 
         public static bool IsAndroid()
         {
             return Constants.TargetPlatform == GamePlatform.Android;
-        }
-
-        public static string GetItemName(int parentSheetIndex)
-        {
-            return new SVObject(parentSheetIndex, 1).DisplayName;
         }
 
         public static T FindToolFromInventory<T>(bool fromEntireInventory) where T : Tool
@@ -61,7 +53,7 @@ namespace JoysOfEfficiency.Utils
             return f < min ? min : (f > max ? max : f);
         }
 
-        
+
 
         public static void ShowHudMessage(string message, int duration = 3500)
         {
@@ -159,7 +151,10 @@ namespace JoysOfEfficiency.Utils
                 {
                     Vector2 toCheck = tileLocation + new Vector2(i, j);
                     int x = (int)toCheck.X, y = (int)toCheck.Y;
-                    if (location.doesTileHaveProperty(x, y, "Water", "Back") != null || location.doesTileHaveProperty(x, y, "WaterSource", "Back") != null || location is BuildableGameLocation loc2 && loc2.buildings.Where(b => b.occupiesTile(toCheck)).Any(building => building.buildingType.Value == "Well"))
+                    if (location.doesTileHaveProperty(x, y, "Water", "Back") != null
+                        || location.doesTileHaveProperty(x, y, "WaterSource", "Back") != null
+                        || location.IsBuildableLocation()
+                        && location.buildings.Where(b => b.occupiesTile(toCheck)).Any(building => building.buildingType.Value == "Well"))
                     {
                         return true;
                     }
@@ -189,7 +184,7 @@ namespace JoysOfEfficiency.Utils
             }
 
             GameLocation location = player.currentLocation;
-            Vector2 ov = player.getTileLocation();
+            Vector2 ov = player.Tile;
             List<T> list = new List<T>();
             for (int dx = -radius; dx <= radius; dx++)
             {
@@ -289,28 +284,29 @@ namespace JoysOfEfficiency.Utils
         {
             if (can == null)
                 return -1;
+            int waterCanSize;
             switch (can.UpgradeLevel)
             {
                 case 0:
-                    can.waterCanMax = 40;
+                    waterCanSize = 40;
                     break;
                 case 1:
-                    can.waterCanMax = 55;
+                    waterCanSize = 55;
                     break;
                 case 2:
-                    can.waterCanMax = 70;
+                    waterCanSize = 70;
                     break;
                 case 3:
-                    can.waterCanMax = 85;
+                    waterCanSize= 85;
                     break;
                 case 4:
-                    can.waterCanMax = 100;
+                    waterCanSize = 100;
                     break;
                 default:
                     return -1;
             }
 
-            return can.waterCanMax;
+            return waterCanSize;
 
         }
 
@@ -336,14 +332,13 @@ namespace JoysOfEfficiency.Utils
                 radius = 1;
             }
             GameLocation location = player.currentLocation;
-            Vector2 ov = player.getTileLocation();
             Dictionary<Vector2, T> list = new Dictionary<Vector2, T>();
 
             for (int dx = -radius; dx <= radius; dx++)
             {
                 for (int dy = -radius; dy <= radius; dy++)
                 {
-                    Vector2 loc = ov + new Vector2(dx, dy);
+                    Vector2 loc = player.Tile + new Vector2(dx, dy);
                     if (location.terrainFeatures.ContainsKey(loc) && location.terrainFeatures[loc] is T t)
                     {
                         list.Add(loc, t);
@@ -358,12 +353,6 @@ namespace JoysOfEfficiency.Utils
             return location.Objects.Pairs.Any(kv => kv.Value == obj) ? location.Objects.Pairs.First(kv => kv.Value == obj).Key : new Vector2(-1, -1);
         }
 
-        
-
-        
-
-        
-        
 
         private static void DrawItemPickupHud(Item item)
         {
@@ -393,7 +382,8 @@ namespace JoysOfEfficiency.Utils
                 }
             }
 
-            addHUDMessage(new HUDMessage(text, Math.Max(1, item.Stack), true, color, item));
+//            addHUDMessage(new HUDMessage(text, Math.Max(1, item.Stack), true, color, item));
+            addHUDMessage(new HUDMessage(text, 3.0f, true));
         }
 
         public static int GetTruePrice(Item item)
