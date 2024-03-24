@@ -10,6 +10,7 @@ namespace JoysOfEfficiency.EventHandler
     internal class ArtifactSpotDigger
     {
         private static Config Config => InstanceHolder.Config;
+        private static readonly Logger Logger = new Logger("ArtifactSpotDigger");
 
         public static void DigNearbyArtifactSpots()
         {
@@ -31,15 +32,19 @@ namespace JoysOfEfficiency.EventHandler
                     int x = currPos.X + i;
                     int y = currPos.Y + j;
                     Vector2 loc = new Vector2(x, y);
-                    if (!location.Objects.ContainsKey(loc) || location.Objects[loc].ParentSheetIndex != 590 ||
-                        location.isTileHoeDirt(loc))
+                    if (!location.Objects.ContainsKey(loc) || location.isTileHoeDirt(loc))
                     {
                         continue;
                     }
-                    location.digUpArtifactSpot(x, y, player);
-                    location.Objects.Remove(loc);
-                    location.terrainFeatures.Add(loc, new HoeDirt());
-                    flag = true;
+
+                    if (location.Objects[loc].name == "Artifact Spot" || location.Objects[loc].name == "Seed Spot")
+                    {
+                        Logger.Info($"** {location.Objects[loc].name} ** at [{loc.X},{loc.Y}]");
+                        location.digUpArtifactSpot(x, y, player);
+                        location.Objects.Remove(loc);
+                        location.terrainFeatures.Add(loc, new HoeDirt());
+                        flag = true;
+                    }
                 }
             }
 

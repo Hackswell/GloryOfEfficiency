@@ -382,7 +382,6 @@ namespace JoysOfEfficiency.Utils
                 }
             }
 
-//            addHUDMessage(new HUDMessage(text, Math.Max(1, item.Stack), true, color, item));
             addHUDMessage(new HUDMessage(text, 3.0f, true));
         }
 

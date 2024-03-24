@@ -7,7 +7,6 @@ namespace JoysOfEfficiency.Utils
         public static IMonitor Monitor
         {
             get; private set;
-
         }
 
         public static void Init(IMonitor monitor)
@@ -22,6 +21,11 @@ namespace JoysOfEfficiency.Utils
         }
 
         public void Log(string text, LogLevel level = LogLevel.Trace)
+        {
+            Monitor.Log($"[{Name}]{text}", level);
+        }
+
+        public void Info(string text, LogLevel level = LogLevel.Info)
         {
             Monitor.Log($"[{Name}]{text}", level);
         }

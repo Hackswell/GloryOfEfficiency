@@ -30,11 +30,12 @@ namespace JoysOfEfficiency.Automation
                 if (obj.Name == "Keg" && item.ParentSheetIndex == 433 && item.Stack < 5)
                 {
                     // You don't have enough beans.
+                    Logger.Info($"Trying to deposit {item.Name} into KEG: {obj.Name}. Not enough beans!");
                     return;
                 }
 
                 bool accepted = obj.Name == "Furnace" ? CanFurnaceAcceptItem(item, player) : Utility.isThereAnObjectHereWhichAcceptsThisItem(currentLocation, item, (int)loc.X * tileSize, (int)loc.Y * tileSize);
-                Logger.Log($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
+                Logger.Info($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
                 if (obj is Cask)
                 {
                     if (ModEntry.IsCoGOn || ModEntry.IsCaOn)
@@ -55,7 +56,7 @@ namespace JoysOfEfficiency.Automation
                     if (item.Name == "Bait" || item.Name == "Magic Bait")
                     {
                         accepted = true;
-                        Logger.Log($"\tCrab Pot and {item.Name} are now ACCEPTED.");
+                        Logger.Info($"\tCrab Pot and {item.Name} are now ACCEPTED.");
                     }
                 }
                 else if (obj.Name == "Seed Maker")
@@ -66,13 +67,14 @@ namespace JoysOfEfficiency.Automation
                 if (!accepted)
                     continue;
 
-                Logger.Log($"Trying to drop {item.Name} into {obj}.");
+                Logger.Info($"Trying to drop {item.Name} into {obj}.");
                 // performObjectDropInAction but only if it's currently empty
                 obj.performObjectDropInAction(item, false, player);
                 if (!(obj.Name == "Furnace" || obj.Name == "Charcoal Kiln") || item.Stack == 0)
                 {
-//                    player.reduceActiveItemByOne();
+                    player.reduceActiveItemByOne();
                 }
+                Logger.Info($"DONE dropping {item.Name} into {obj}.");
 
                 return;
             }
