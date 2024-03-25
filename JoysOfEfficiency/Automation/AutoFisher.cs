@@ -74,9 +74,11 @@ namespace JoysOfEfficiency.Automation
             {
                 return;
             }
-            String whichFish = rod.whichFish.QualifiedItemId;
 
-            if (!rod.isNibbling || !rod.isFishing || whichFish != null || rod.isReeling || rod.hit ||
+            // if instance here gives error so i instance in the if.
+            // String whichFish = rod.whichFish.QualifiedItemId;
+
+            if (!rod.isNibbling || !rod.isFishing || rod.whichFish != null || rod.isReeling || rod.hit ||
                 rod.isTimingCast || rod.pullingOutOfWater || rod.fishCaught || rod.castedButBobberStillInAir)
             {
                 return;
@@ -90,7 +92,7 @@ namespace JoysOfEfficiency.Automation
             int recastTimerMs = rod.recastTimerMs;
             String whichFish = rod.whichFish.QualifiedItemId;
             int fishQuality = rod.fishQuality;
-            String itemCategory = rod.getCategoryName();
+            int itemCategory = rod.whichFish.GetParsedData().Category;
 
             if (!Game1.isFestival())
             {
@@ -118,42 +120,57 @@ namespace JoysOfEfficiency.Automation
             who.currentLocation.localSound("coin");
             if (!rod.treasureCaught)
             {
-                rod.recastTimerMs = 200;
                 StardewValley.Object @object = null;
                 switch (itemCategory)
                 {
-                    case "Object":
-                    {
-                        @object = new StardewValley.Object(whichFish, 1, false, -1, fishQuality);
-                        if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
+                    case -24:
                         {
-                            @object.questItem.Value = true;
+                            @object = new Furniture(whichFish, Vector2.Zero);
+                            break;
                         }
 
-                        if (whichFish == "79" || whichFish == "842")
-                        {
-                            @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
-                            if (@object == null)
-                                return;
-                        }
 
-                        if (rod.numberOfFishCaught > 1)
+                    case -4:
                         {
-                            @object.Stack = rod.numberOfFishCaught;
+                            @object = new StardewValley.Object(whichFish, 1, false, -1, fishQuality);
+                            if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
+                            {
+                                @object.questItem.Value = true;
+                            }
+                            if (whichFish == "79" || whichFish == "842")
+                            {
+                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
+                                if (@object == null) return;
+                            }
+                            if (rod.numberOfFishCaught > 1)
+                            {
+                                @object.Stack = 2;
+                            }
+                            break;
                         }
-
-                        break;
-                    }
-                    case "Furniture":
-                    {
-                        @object = new Furniture(whichFish, Vector2.Zero);
-                        break;
-                    }
+                    default:
+                        {
+                            @object = new StardewValley.Object(whichFish, 1, false, -1);
+                            if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
+                            {
+                                @object.questItem.Value = true;
+                            }
+                            if (whichFish == "79" || whichFish == "842")
+                            {
+                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
+                                if (@object == null) return;
+                            }
+                            if (rod.numberOfFishCaught > 1)
+                            {
+                                @object.Stack = 2;
+                            }
+                            break;
+                        }
                 }
                 bool fromFishPond = rod.fromFishPond;
                 who.completelyStopAnimatingOrDoingAction();
                 rod.doneFishing(who, !fromFishPond);
-                if (!Game1.isFestival() && !fromFishPond && (itemCategory == "Object" && Game1.player.team.specialOrders.Count > 0))
+                if (!Game1.isFestival() && !fromFishPond && (itemCategory == -4 && Game1.player.team.specialOrders.Count > 0))
                 {
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
                     {
@@ -166,10 +183,7 @@ namespace JoysOfEfficiency.Automation
                     return;
                 }
 
-                Game1.activeClickableMenu = new ItemGrabMenu(new List<Item>
-                {
-                    @object
-                }, rod).setEssential(true);
+                Game1.activeClickableMenu = new ItemGrabMenu(new List<Item> { @object }, rod).setEssential(true);
             }
             else
             {
