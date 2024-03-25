@@ -96,19 +96,30 @@ namespace JoysOfEfficiency.Automation
 
         private static bool CanFurnaceAcceptItem(Item item, Farmer player)
         {
-            if (player.Items.ContainsId(Object.coalQID, 1))
+            Logger.Info($"{player.Items.ContainsId(Object.coalQID)} ** {item.Stack} ** {item.ParentSheetIndex}");
+
+            // Minimum of one coal in inventory
+            if (! player.Items.ContainsId(Object.coalQID, 1))
                 return false;
-            if (item.Stack < 5 && item.ParentSheetIndex != 80 && item.ParentSheetIndex != 82 && item.ParentSheetIndex != 330)
-                return false;
-            switch (item.ParentSheetIndex)
+
+            switch (item.Name)
             {
-                case 378:       // Copper Ore
-                case 380:       // Iron Ore
-                case 384:       // Gold Ore
-                case 386:       // Iridium Ore
-                case 80:        // Quartz
-                case 82:        // Fire Quartz
+                // One item per coal...
+                case "Clay":
+                case "Quartz":
+                case "Fire Quartz":
                     break;
+
+                // Five items per coal...
+                case "Copper Ore":
+                case "Iron Ore":
+                case "Gold Ore":
+                case "Iridium Ore":
+                case "Radioactive Ore":
+                    if (item.Stack < 5)
+                        return false;
+                    break;
+
                 default:
                     return false;
             }

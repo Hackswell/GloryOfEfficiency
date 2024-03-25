@@ -1,7 +1,13 @@
+*** KNOWN BROKEN ***
+--------------------
+<There is nothing here. Yay!>
 
+
+*** APPARENTLY WORKING ***
+--------------------------
 +[Fence Gate Automation]
 
-+[Farm Cleaner]			-- Should probably default to OFF, especially early game.
++[Farm Cleaner]
 +[Watering Can Refiller]
 +[Harvest Automation]
 	+Autofill watering can
@@ -11,10 +17,9 @@
 	+Destroy dead crops
 	+Shake trees / fruit trees
 
-O[MachineOperator]
-	Auto pull
-	Auto push  [Crab pot?  Cask?]
-	-- TODO: Furnace neither pushes nor pulls
++[MachineOperator]
+	+Auto pull
+	+Auto push
 
 +[Animal Automation]
 	+Pet nearby animals
@@ -27,13 +32,6 @@ O[MachineOperator]
 
 +[Mine HUD]
 
-[Food Automation]		-- UNTESTED
-	Auto eat
-
-[Shipping Estimator] -- Is this even needed in 1.6 any more?
-
-[FPS Counter]			-- UNTESTED
-
 +[Trash can Scavenger]
 
 +[Collectible Collector]
@@ -41,8 +39,16 @@ O[MachineOperator]
 	+Artifact auto digger
 	+Collect nearby collectibles
 
-[Inventory Automation]
++[Shipping Estimator]
+
+
+*** UNTESTED ***
+----------------
+[Inventory Automation]  -- UNTESTED
 	Treasure Auto-grab
+
+[Food Automation]		-- UNTESTED
+	Auto eat
 
 [Fishing]				-- UNTESTED
 	Fishing Probabilities Box
