@@ -41,24 +41,26 @@
 
 +[Shipping Estimator]
 
+O[Fishing]
+	OFishing Probabilities Box [O Farm, +Mines, O Submarine, O Witch's Swamp, +EverywhereElse]
+	+Fish Info HUD
+	Autofisher
+	    Auto-reeling
+	    AFK
+	    Treasure
 
 *** UNTESTED ***
 ----------------
-[Inventory Automation]  -- UNTESTED
-	Treasure Auto-grab
+
+[Idle Pause]			-- UNTESTED
 
 [Food Automation]		-- UNTESTED
 	Auto eat
 
-[Fishing]				-- UNTESTED
-	Fishing Probabilities Box
-	Fish Info HUD
-	Autofisher - AFK
-	Auto Reel Rod
+[Inventory Automation]  -- UNTESTED
+	Treasure Auto-grab
 
 [Flower Color Unifier]	-- UNTESTED
 	Unify Flower Colors
 
 [Mail Automation]		-- UNTESTED
-
-[Idle Pause]			-- UNTESTED

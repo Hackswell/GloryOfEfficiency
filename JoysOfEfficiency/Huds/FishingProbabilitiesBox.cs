@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Linq;
+using System.Text.RegularExpressions;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley;
+using StardewValley.GameData.LocationContexts;
 using StardewValley.GameData.Locations;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
+using Game1 = StardewValley.Game1;
 using Object = StardewValley.Object;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
@@ -21,7 +24,7 @@ namespace JoysOfEfficiency.Huds
     {
         private static readonly Logger Logger = new Logger("FishingProbabilitiesInfo");
 
-        private static Dictionary<int, double> _fishingDictionary;
+        private static Dictionary<String, double> _fishingDictionary;
 
         private static bool _isFirstTimeOfFishing = true;
 
@@ -59,9 +62,9 @@ namespace JoysOfEfficiency.Huds
             DrawProbBox(_fishingDictionary);
         }
 
-        private static Dictionary<int, double> GetFishes(GameLocation location, int bait, int waterDepth, Farmer who, int trial = 1)
+        private static Dictionary<String, double> GetFishes(GameLocation location, int bait, int waterDepth, Farmer who, int trial = 1)
         {
-            List<Dictionary<int, double>> dictList = new List<Dictionary<int, double>>();
+            List<Dictionary<String, double>> dictList = new List<Dictionary<String, double>>();
             for (int i = 0; i < trial; i++)
             {
                 switch (location)
@@ -70,6 +73,7 @@ namespace JoysOfEfficiency.Huds
                         dictList.Add(GetFishesFarm(waterDepth, who));
                         break;
                     case MineShaft shaft:
+//                        dictList.Add(GetFishes(waterDepth, who));
                         dictList.Add(GetFishesMine(shaft, bait, waterDepth, who));
                         break;
                     case Submarine _:
@@ -81,135 +85,183 @@ namespace JoysOfEfficiency.Huds
                 }
             }
 
-            Dictionary<int, double> dict = ShuffleAndAverageFishingDictionary(dictList);
+            Dictionary<String, double> dict = ShuffleAndAverageFishingDictionary(dictList);
 
-            Dictionary<int, double> dict2 =
+            Dictionary<String, double> dict2 =
                 dict.OrderByDescending(x => x.Value)
                     .Where(kv => !IsGarbage(kv.Key)).ToDictionary(x => x.Key, x => x.Value);
             double sum = dict2.Sum(kv => kv.Value);
             if (1 - sum >= 0.0001)
             {
-                dict2.Add(168, 1 - sum);
+                dict2.Add("168", 1 - sum);
             }
             return dict2;
         }
 
-        private static Dictionary<int, double> GetFishes(int waterDepth, Farmer who, string locationName = null)
+        private static Dictionary<String, double> GetFishes(int waterDepth, Farmer who, string locationName = null)
         {
-            Dictionary<int, double> dict = new Dictionary<int, double>();
+            Dictionary<String, double> dictFish = new Dictionary<String, double>();
+            GameLocation currLocation = Game1.currentLocation;
+            Season season = Game1.GetSeasonForLocation(currLocation);
 
-            Dictionary<string, string> dictionary = Game1.content.Load<Dictionary<string, string>>("Data\\Locations");
-            string key = locationName ?? Game1.currentLocation.Name;
-            if (key.Equals("WitchSwamp")
+            LocationData thisLocData = Game1.currentLocation.GetData();
+            String jThisLocData = JsonSerializer.Serialize(thisLocData, new JsonSerializerOptions { WriteIndented = true });
+            Logger.Info($"This LocationData: {jThisLocData}");
+
+            Dictionary<string, string> allFishData = DataLoader.Fish(Game1.content);
+
+            string locName = locationName ?? currLocation.Name;
+            Logger.Info($"GetFishes: Loc: {locName} ** Season: {season}");
+
+            if (locName.Equals("WitchSwamp")
                 && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone")
-                && !Game1.player.Items.ContainsId("(O)308", 1))
+                && !Game1.player.Items.ContainsId("Void Mayonnaise", 1))
             {
-                return new Dictionary<int, double>
+                return new Dictionary<String, double>
                 {
-                    {308,0.25}
+                    { "308", 0.25 } // If the Henchman is gone, and the user has no void mayo, 25% chance to fish it up
                 };
             }
 
-            try
+            String JSONFishes = JsonSerializer.Serialize(allFishData, new JsonSerializerOptions { WriteIndented = true });
+            Logger.Info($"All Fishes: {JSONFishes}");
+            Dictionary<string, LocationData> dictionary = DataLoader.Locations(Game1.content);
+            String jDict = JsonSerializer.Serialize(dictionary, new JsonSerializerOptions { WriteIndented = true });
+            Logger.Info($"All Location Data: {jDict}");
+
+            IEnumerable<SpawnFishData> possibleFish = dictionary["Default"].Fish;
+            if (thisLocData != null && thisLocData.Fish?.Count > 0)
             {
-                if (dictionary.ContainsKey(key))
+                possibleFish = possibleFish.Concat(thisLocData.Fish);
+            }
+
+
+            if (!(who.CurrentTool is FishingRod rod))
+            {
+                return dictFish;
+            }
+
+            Logger.Info($"Finding fish area for farmer: {who.Tile.X},{who.Tile.Y} [bobber] {rod.bobber.X},{rod.bobber.Y} ** {currLocation.locationContextId} ** ");
+            LocationContextData bubba = currLocation.GetLocationContext();
+            String jsonBubba = JsonSerializer.Serialize(bubba, new JsonSerializerOptions { WriteIndented = true });
+            Logger.Info($"GameLocationContext: {jsonBubba}");
+
+            currLocation.TryGetFishAreaForTile(who.Tile, out var fishAreaID, out var fishAreaData);
+            Logger.Info($"FishAreaID: {fishAreaID}");
+            String jsonFishAreaData = JsonSerializer.Serialize(fishAreaData, new JsonSerializerOptions { WriteIndented = true });
+            Logger.Info($"FishAreaData: {jsonFishAreaData}");
+
+            possibleFish =  from p in possibleFish
+                            orderby p.Precedence, Game1.random.Next()
+                            where    (p.FishAreaId == fishAreaID || p.FishAreaId == null) && (p.Season == season || p.Season == null)
+                            select p;
+
+            String JSON = JsonSerializer.Serialize(possibleFish, new JsonSerializerOptions{WriteIndented = true});
+            Logger.Info($"Possibru Fishu:\n{JSON}");
+
+            // Reference: https://stardewvalleywiki.com/Modding:Fish_data#Fish_data_and_spawn_criteria
+            //              0          1   2      3  4    5            6                   7     8           9  10 11 12  13
+            //  "143": "Catfish/       75/mixed/ 12/72/600 2400/spring fall winter/      rainy/689 .4 680 .1/4/.40/.1/0/true",
+            //  "800": "Blobfish/      75/floater/8/25/600 2600/spring summer fall winter/both/685 .35/      3/.40/.1/0/false"
+            //  "701": "Tilapia/       50/mixed/ 11/30/600 1400/summer fall/              both/683 .35/      3/.4/.2/0/false",
+            //  "838": "Blue Discus/   60/dart/   2/ 9/600 2600/spring summer fall winter/both/685 .35/      1/.25/.1/0/false",
+            //  "162": "Lava Eel/      90/mixed/ 32/32/600 2600/spring summer fall winter/both/684 .1/       2/.05/.1/7/false",
+
+            /* 0   Name
+               5   startTime  endTime
+               6   season1 season2 ...
+               7   rainy|sunny|both
+               9   maxDepth
+               10  spawnMultiplier
+               11  depthMultiplier
+               12  fishingLevel            */
+
+            double chance = 0.0d;
+            foreach (SpawnFishData f in possibleFish)
+            {
+                String id = f.Id;
+                Logger.Info($"Testing Fish ID: {id}");
+                id = Regex.Replace(id, "\\(O\\)", "");
+                Logger.Info($"Testing Fish ID: {id}");
+
+                // Any list item like "(O)167|(O)168|(O)169|(O)170|(O)171|(O)172" is a list of garbage.  Skip it.
+                if (id.Contains('|'))
                 {
-                    string[] array = dictionary[key].Split('/')[4 + Utility.getSeasonNumber(Game1.currentSeason)].Split(' ');
-                    Dictionary<string, string> dictionary2 = new Dictionary<string, string>();
-                    if (array.Length > 1)
+                    continue;
+                }
+
+                // If it's not found in the allFishData, assign the chance from possibleFish instead
+                if (!allFishData.ContainsKey(id))
+                {
+                    Logger.Info($"\tdictFish: Adding {id} :: {f.Chance}");
+                    dictFish.Add(id, f.Chance);
+                    continue;
+                }
+
+                Logger.Info($"Parsing through allFishData for {f.Id} now...");
+                String[] fishData = allFishData[id].Split('/');
+                String jFishData = JsonSerializer.Serialize(fishData, new JsonSerializerOptions{WriteIndented = true});
+                Logger.Info($"\tID: {id} *** {jFishData}");
+
+                // If the time isn't in the fish's catch times, go on to next fish.
+                String[] catchTimes = fishData[5].Split(' ');
+                if (Game1.timeOfDay < Convert.ToInt32(catchTimes[0]) ||
+                    Game1.timeOfDay >= Convert.ToInt32(catchTimes[1]))
+                {
+                    continue;
+                }
+
+                // Make sure weather matches the fish pool.  [Hackswell: pun intended]
+                if (! fishData[7].Equals("both"))
+                {
+                    if (fishData[7].Equals("rainy") && !Game1.isRaining)
                     {
-                        for (int i = 0; i < array.Length; i += 2)
-                        {
-                            dictionary2[array[i]] = array[i + 1];
-                        }
+                        continue;
                     }
-
-                    string[] array2 = dictionary2.Keys.ToArray();
-                    Dictionary<int, string> dictionary3 = Game1.content.Load<Dictionary<int, string>>("Data\\Fish");
-                    //Utility.Shuffle(random, array2);
-                    foreach (string t in array2)
+                    else if (fishData[7].Equals("sunny") && Game1.isRaining)
                     {
-                        bool flag2 = true;
-                        string[] array3 = dictionary3[Convert.ToInt32(t)].Split('/');
-                        string[] array4 = array3[5].Split(' ');
-                        int num2 = Convert.ToInt32(dictionary2[t]);
-                        String fishAreaId = "";
-                        FishAreaData fishAreaData;
-                        Game1.currentLocation.TryGetFishAreaForTile(who.Tile, out fishAreaId, out fishAreaData);
-                        if (num2 == -1 || Int32.Parse(fishAreaId) == num2)
-                        {
-                            int num3 = 0;
-                            while (num3 < array4.Length)
-                            {
-                                if (Game1.timeOfDay < Convert.ToInt32(array4[num3]) ||
-                                    Game1.timeOfDay >= Convert.ToInt32(array4[num3 + 1]))
-                                {
-                                    num3 += 2;
-                                    continue;
-                                }
-
-                                flag2 = false;
-                                break;
-                            }
-                        }
-
-                        if (!array3[7].Equals("both"))
-                        {
-                            if (array3[7].Equals("rainy") && !Game1.isRaining)
-                            {
-                                flag2 = true;
-                            }
-                            else if (array3[7].Equals("sunny") && Game1.isRaining)
-                            {
-                                flag2 = true;
-                            }
-                        }
-
-                        if (who.FishingLevel < Convert.ToInt32(array3[12]))
-                        {
-                            flag2 = true;
-                        }
-
-                        if (flag2)
-                            continue;
-
-                        double num4 = Convert.ToDouble(array3[10]);
-                        double num5 = Convert.ToDouble(array3[11]) * num4;
-                        num4 -= Math.Max(0, Convert.ToInt32(array3[9]) - waterDepth) * num5;
-                        num4 += who.FishingLevel / 50f;
-                        num4 = Math.Min(num4, 0.89999997615814209);
-                        int num = Convert.ToInt32(t);
-
-                        dict.Add(num, num4);
+                        continue;
                     }
                 }
-            }
-            catch (KeyNotFoundException knf)
-            {
-                Logger.Log("KeyNotFoundException occured.");
-                Logger.Log(knf.ToString());
-            }
 
-            return dict;
+                if (who.FishingLevel < Convert.ToInt32(fishData[12]))
+                {
+                   continue;
+                }
+
+                int maxDepth = Convert.ToInt32(fishData[9]);
+                double spawnMultiplier = Convert.ToDouble(fishData[10]);
+                double depthMultiplier = Convert.ToDouble(fishData[11]) * spawnMultiplier;
+                spawnMultiplier -= Math.Max(0, maxDepth - waterDepth) * depthMultiplier;
+                spawnMultiplier += who.FishingLevel / 50f;
+                chance = Math.Min(spawnMultiplier, 0.89999997615814209);
+
+                Logger.Info($"dictFish: Adding {id} :: {chance}");
+                dictFish.Add(id, chance);
+            }
+            String jDictFish = JsonSerializer.Serialize(dictFish, new JsonSerializerOptions{WriteIndented = true});
+            Logger.Info($"Possible Fish:\n{jDictFish}");
+
+            return dictFish;
         }
 
-        private static Dictionary<int, double> GetFishesSubmarine()
+        private static Dictionary<String, double> GetFishesSubmarine()
         {
-            return new Dictionary<int, double>
+            return new Dictionary<String, double>
             {
-                { 800, 0.1 },
-                { 799, 0.18 },
-                { 798, 0.28 },
-                { 154, 0.1 },
-                { 155, 0.08 },
-                { 149, 0.05 },
-                { 797, 0.01 }
+                { "800", 0.1 },
+                { "799", 0.18 },
+                { "798", 0.28 },
+                { "154", 0.1 },
+                { "155", 0.08 },
+                { "149", 0.05 },
+                { "797", 0.01 }
             };
         }
 
-        private static Dictionary<int, double> GetFishesMine(MineShaft shaft, int bait, int waterDepth, Farmer who)
+        private static Dictionary<String, double> GetFishesMine(MineShaft shaft, int bait, int waterDepth, Farmer who)
         {
-            Dictionary<int, double> dict = new Dictionary<int, double>();
+            Dictionary<String, double> dict = new Dictionary<String, double>();
             double num2 = 1.0;
             num2 += 0.4 * who.FishingLevel;
             num2 += waterDepth * 0.1;
@@ -221,17 +273,17 @@ namespace JoysOfEfficiency.Huds
                 case 10:
                     num2 += bait == 689 ? 3 : 0;
                     p = 0.02 + 0.01 * num2;
-                    dict.Add(158, p);
+                    dict.Add("158", p);             // Stonefish
                     break;
                 case 40:
                     num2 += bait == 682 ? 3 : 0;
                     p = 0.015 + 0.009 * num2;
-                    dict.Add(161, p);
+                    dict.Add("161", p);             // Ice Pip
                     break;
                 case 80:
                     num2 += bait == 684 ? 3 : 0;
                     p = 0.01 + 0.008 * num2;
-                    dict.Add(162, p);
+                    dict.Add("162", p);             // Lava Eel
                     break;
                 default:
                     return dict;
@@ -249,7 +301,7 @@ namespace JoysOfEfficiency.Huds
             return dict;
         }
 
-        private static Dictionary<int, double> GetFishesFarm(int waterDepth, Farmer who)
+        private static Dictionary<String, double> GetFishesFarm(int waterDepth, Farmer who)
         {
             switch (Game1.whichFarm)
             {
@@ -261,7 +313,7 @@ namespace JoysOfEfficiency.Huds
                     {
                         double p = 0.05 + Game1.player.DailyLuck;
                         return ConcatDictionary(
-                            new Dictionary<int, double> { { 734, p } },
+                            new Dictionary<String, double> { { "734", p } },
                             MagnifyProbabilities(
                                 GetFishes(waterDepth, who, "Forest"),
                                 (1 - p) * 0.45)
@@ -278,11 +330,11 @@ namespace JoysOfEfficiency.Huds
             }
         }
 
-        private static Dictionary<int, double> GetFinalProbabilities(Dictionary<int, double> dict)
+        private static Dictionary<String, double> GetFinalProbabilities(Dictionary<String, double> dict)
         {
-            Dictionary<int, double> result = new Dictionary<int, double>();
+            Dictionary<String, double> result = new Dictionary<String, double>();
             double ratio = 1.0;
-            foreach (KeyValuePair<int, double> kv in dict)
+            foreach (KeyValuePair<String, double> kv in dict)
             {
                 result.Add(kv.Key, kv.Value * ratio);
                 ratio *= (1 - kv.Value);
@@ -291,41 +343,48 @@ namespace JoysOfEfficiency.Huds
             return result;
         }
 
-        private static bool IsGarbage(int index)
+        private static bool IsGarbage(String item)
         {
-            if (index >= 167 && index <= 172)
+            try
             {
-                return true;
+                int index = int.Parse(item);
+                if (index is >= 167 and <= 172)
+                {
+                    return true;
+                }
+                switch (index)
+                {
+                    case 152:
+                    case 153:
+                    case 157:
+                        return true;
+                }
             }
-            switch (index)
-            {
-                case 152:
-                case 153:
-                case 157: return true;
-            }
+            catch { }
+
             return false;
         }
 
-        private static Dictionary<int, double> ShuffleAndAverageFishingDictionary(IEnumerable<Dictionary<int, double>> list)
+        private static Dictionary<String, double> ShuffleAndAverageFishingDictionary(IEnumerable<Dictionary<String, double>> list)
         {
-            List<Dictionary<int, double>> dicts = list.Select(dict => GetFinalProbabilities(ShuffleDictionary(dict))).ToList();
+            List<Dictionary<String, double>> dicts = list.Select(dict => GetFinalProbabilities(ShuffleDictionary(dict))).ToList();
 
             return AverageDictionary(dicts);
         }
 
-        private static Dictionary<int, double> ShuffleDictionary(Dictionary<int, double> dict)
+        private static Dictionary<String, double> ShuffleDictionary(Dictionary<String, double> dict)
         {
-            KeyValuePair<int, double>[] pairs = dict.ToArray();
+            KeyValuePair<String, double>[] pairs = dict.ToArray();
             Utility.Shuffle(Game1.random, pairs);
             return pairs.ToDictionary(x => x.Key, x => x.Value);
         }
 
-        private static Dictionary<int, double> AverageDictionary(List<Dictionary<int, double>> list)
+        private static Dictionary<String, double> AverageDictionary(List<Dictionary<String, double>> list)
         {
-            Dictionary<int, double> sum = new Dictionary<int, double>();
-            foreach (Dictionary<int, double> elem in list)
+            Dictionary<String, double> sum = new Dictionary<String, double>();
+            foreach (Dictionary<String, double> elem in list)
             {
-                foreach (KeyValuePair<int, double> pair in elem)
+                foreach (KeyValuePair<String, double> pair in elem)
                 {
                     if (sum.ContainsKey(pair.Key))
                     {
@@ -341,7 +400,7 @@ namespace JoysOfEfficiency.Huds
             return MagnifyProbabilities(sum, 1.0 / list.Count);
         }
 
-        private static Dictionary<int, double> MagnifyProbabilities(Dictionary<int, double> dict, double ratio)
+        private static Dictionary<String, double> MagnifyProbabilities(Dictionary<String, double> dict, double ratio)
         {
             return dict.ToDictionary(kv => kv.Key, kv => kv.Value * ratio);
         }
@@ -358,22 +417,37 @@ namespace JoysOfEfficiency.Huds
             return dict;
         }
 
-        private static void DrawProbBox(Dictionary<int, double> probabilities)
+        private static void DrawProbBox(Dictionary<String, double> probabilities)
         {
+            Rectangle window = Game1.game1.Window.ClientBounds;
             SpriteBatch b = Game1.spriteBatch;
             Size size = GetProbBoxSize(probabilities);
-            IClickableMenu.drawTextureBox(Game1.spriteBatch, InstanceHolder.Config.ProbBoxCoordinates.X, InstanceHolder.Config.ProbBoxCoordinates.Y, size.Width, size.Height, Color.White);
+
+            int yOffset = InstanceHolder.Config.ProbBoxCoordinates.Y;
+            if (size.Height > window.Height - yOffset)
+            {
+                yOffset = window.Height - size.Height;
+                if (yOffset < 0)
+                    yOffset = 0;
+            }
+
+            IClickableMenu.drawTextureBox(Game1.spriteBatch,
+                                          InstanceHolder.Config.ProbBoxCoordinates.X,
+                                          yOffset,
+                                          size.Width, size.Height, Color.White);
             const int square = (int)(Game1.tileSize / 1.5);
             int x = InstanceHolder.Config.ProbBoxCoordinates.X + 8;
-            int y = InstanceHolder.Config.ProbBoxCoordinates.Y + 16;
-            SpriteFont font = Game1.dialogueFont;
+            int y = yOffset + 16;
+            SpriteFont font = Game1.smallFont;
             {
-                foreach (KeyValuePair<int, double> kv in probabilities)
+                foreach (KeyValuePair<String, double> kv in probabilities)
                 {
-                    string text = $"{kv.Value * 100:f1}%";
-                    Object fish = new Object(""+kv.Key, 1);
+                    if (kv.Key.Contains("SECRET_NOTE"))
+                        continue;
 
-                    fish.drawInMenu(b, new Vector2(x + 8, y), 1.0f);
+                    string text = $"{kv.Value * 100:f1}%";
+                    Object fish = new Object(kv.Key, 1);
+                    fish.drawInMenu(b, new Vector2(x + 8, y), 0.70f);
                     Utility.drawTextWithShadow(b, text, font, new Vector2(x + 32 + square, y + 16), Color.Black);
 
                     y += square + 16;
@@ -381,14 +455,16 @@ namespace JoysOfEfficiency.Huds
             }
         }
 
-        private static Size GetProbBoxSize(Dictionary<int, double> probabilities)
+        private static Size GetProbBoxSize(Dictionary<String, double> probabilities)
         {
             int width = 16, height = 48;
             int square = (int)(Game1.tileSize / 1.5);
-            SpriteFont font = Game1.dialogueFont;
+            SpriteFont font = Game1.smallFont;
             {
-                foreach (KeyValuePair<int, double> kv in probabilities)
+                foreach (KeyValuePair<String, double> kv in probabilities)
                 {
+                    if (kv.Key.Contains("SECRET_NOTE"))
+                        continue;
                     string text = $"{kv.Value * 100:f1}%";
                     Vector2 textSize = font.MeasureString(text);
                     int w = square + (int)textSize.X + 64;

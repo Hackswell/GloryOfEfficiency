@@ -110,7 +110,7 @@ namespace JoysOfEfficiency.Core
 
         //Fishing Probabilities
         public bool FishingProbabilitiesInfo { get; set; } = false;
-        public Point ProbBoxCoordinates { get; set; } = new Point(100, 400);
+        public Point ProbBoxCoordinates { get; set; } = new Point(40, 500);
         public bool MorePreciseProbabilities { get; set; } = true;
         public int TrialOfExamine { get; set; } = 10;
 

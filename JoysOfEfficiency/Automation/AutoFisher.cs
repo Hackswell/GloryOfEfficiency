@@ -4,11 +4,12 @@ using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.GameData.WorldMaps;
+using StardewValley.ItemTypeDefinitions;
 using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.SpecialOrders;
 using StardewValley.Tools;
+using Object = StardewValley.Object;
 
 namespace JoysOfEfficiency.Automation
 {
@@ -16,9 +17,12 @@ namespace JoysOfEfficiency.Automation
     {
         private static Config Config => InstanceHolder.Config;
 
-        private static readonly Logger Logger = new Logger("AFKFisher");
+        private static readonly Logger Logger = new Logger("AutoFisher");
 
         public static bool AfkMode { get; private set; }
+
+        public static int fishQuality { get; set; }
+        public static bool treasure { get; set; }
 
         private static bool CatchingTreasure { get; set; }
         private static int AutoFishingCounter { get; set; }
@@ -75,9 +79,6 @@ namespace JoysOfEfficiency.Automation
                 return;
             }
 
-            // if instance here gives error so i instance in the if.
-            // String whichFish = rod.whichFish.QualifiedItemId;
-
             if (!rod.isNibbling || !rod.isFishing || rod.whichFish != null || rod.isReeling || rod.hit ||
                 rod.isTimingCast || rod.pullingOutOfWater || rod.fishCaught || rod.castedButBobberStillInAir)
             {
@@ -87,29 +88,18 @@ namespace JoysOfEfficiency.Automation
             rod.DoFunction(player.currentLocation, 1, 1, 1, player);
         }
 
-        public static void CollectFish(Farmer who, FishingRod rod)
+        private static void CollectFish(Farmer who, FishingRod rod)
         {
-            int recastTimerMs = rod.recastTimerMs;
-            String whichFish = rod.whichFish.QualifiedItemId;
-            int fishQuality = rod.fishQuality;
-            int itemCategory = rod.whichFish.GetParsedData().Category;
+            ItemMetadata whichFish = rod.whichFish;
+            String whichFishName = rod.whichFish.QualifiedItemId;
+            fishQuality = rod.fishQuality;
+            string fishID = whichFish.GetParsedData().ItemId;
+            int itemCategory = whichFish.GetParsedData().Category;
 
             if (!Game1.isFestival())
             {
                 who.faceDirection(2);
                 who.FarmerSprite.setCurrentFrame(84);
-            }
-
-            if (Game1.random.NextDouble() < 0.025)
-            {
-                who.currentLocation.temporarySprites.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors",
-                    new Rectangle(653, 858, 1, 1), 9999f, 1, 1,
-                    who.Position + new Vector2(Game1.random.Next(-3, 2) * 4, -32f), false, false,
-                    (float) (who.Tile.Y / 10000.0 + 1.0 / 500.0), 0.04f, Color.LightBlue, 5f, 0.0f,
-                    0.0f, 0.0f)
-                {
-                    acceleration = new Vector2(0.0f, 0.25f)
-                });
             }
 
             if (!who.IsLocalPlayer)
@@ -120,57 +110,47 @@ namespace JoysOfEfficiency.Automation
             who.currentLocation.localSound("coin");
             if (!rod.treasureCaught)
             {
-                StardewValley.Object @object = null;
+                Object @object = null;
                 switch (itemCategory)
                 {
-                    case -24:
+                    case Object.furnitureCategory:
+                    {
+                        @object = new Furniture(fishID, Vector2.Zero);
+                        break;
+                    }
+                    case Object.FishCategory:
+                    {
+                        @object = new StardewValley.Object(fishID, 1, false, -1, fishQuality);
+                        if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
                         {
-                            @object = new Furniture(whichFish, Vector2.Zero);
+                            @object.questItem.Value = true;
                             break;
                         }
 
-
-                    case -4:
+                        if (fishID == "79" || fishID == "842") // Secret Note (79) or Journal Scrap (842)
                         {
-                            @object = new StardewValley.Object(whichFish, 1, false, -1, fishQuality);
-                            if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
-                            {
-                                @object.questItem.Value = true;
-                            }
-                            if (whichFish == "79" || whichFish == "842")
-                            {
-                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
-                                if (@object == null) return;
-                            }
-                            if (rod.numberOfFishCaught > 1)
-                            {
-                                @object.Stack = 2;
-                            }
-                            break;
+                            @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
+                            if (@object == null) return;
                         }
+
+                        if (rod.numberOfFishCaught > 1)
+                        {
+                            @object.Stack = rod.numberOfFishCaught;
+                        }
+
+                        break;
+                    }
                     default:
-                        {
-                            @object = new StardewValley.Object(whichFish, 1, false, -1);
-                            if (whichFish == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
-                            {
-                                @object.questItem.Value = true;
-                            }
-                            if (whichFish == "79" || whichFish == "842")
-                            {
-                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
-                                if (@object == null) return;
-                            }
-                            if (rod.numberOfFishCaught > 1)
-                            {
-                                @object.Stack = 2;
-                            }
-                            break;
-                        }
+                    {
+                        Logger.Log($"How did we get here?!?!  Unhandled case in CollectFish!  ItemCategory: {itemCategory}");
+                        break;
+                    }
                 }
+
                 bool fromFishPond = rod.fromFishPond;
                 who.completelyStopAnimatingOrDoingAction();
                 rod.doneFishing(who, !fromFishPond);
-                if (!Game1.isFestival() && !fromFishPond && (itemCategory == -4 && Game1.player.team.specialOrders.Count > 0))
+                if (!Game1.isFestival() && !fromFishPond && (itemCategory == Object.FishCategory && Game1.player.team.specialOrders.Count > 0))
                 {
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
                     {
@@ -196,7 +176,7 @@ namespace JoysOfEfficiency.Automation
                     initialStack = rod.numberOfFishCaught;
                 }
 
-                StardewValley.Object @object = new StardewValley.Object(whichFish, initialStack, false, -1, fishQuality);
+                Object @object = new Object(fishID, initialStack, false, -1, fishQuality);
                 if (Game1.player.team.specialOrders.Count > 0)
                 {
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
@@ -205,15 +185,7 @@ namespace JoysOfEfficiency.Automation
                     }
                 }
                 bool inventoryBool = who.addItemToInventoryBool(@object);
-                rod.animations.Add(new TemporaryAnimatedSprite("LooseSprites\\Cursors", new Rectangle(64, 1920, 32, 32), 500f, 1, 0, who.Position + new Vector2(-32f, -160f), false, false, (float)(who.Tile.Y / 10000.0 + 1.0 / 1000.0), 0.0f, Color.White, 4f, 0.0f, 0.0f, 0.0f)
-                {
-                    motion = new Vector2(0.0f, -0.128f),
-                    timeBasedMotion = true,
-                    endFunction = rod.openChestEndFunction,
-                    extraInfoForEndBehavior = inventoryBool ? 0 : 1,
-                    alpha = 0.0f,
-                    alphaFade = -1f / 500f
-                });
+                rod.openChestEndFunction(inventoryBool ? 0 : 1);
             }
         }
 
@@ -231,7 +203,6 @@ namespace JoysOfEfficiency.Automation
             float treasurePos = bar.treasurePosition;
             float distanceFromCatching = bar.distanceFromCatching;
             bool treasureCaught = bar.treasureCaught;
-            bool treasure = bar.treasure;
             float treasureAppearTimer = bar.treasureAppearTimer;
             float bobberBarSpeed = bar.bobberBarSpeed;
             float top = barPos;
