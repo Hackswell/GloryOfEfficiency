@@ -106,12 +106,12 @@ namespace JoysOfEfficiency.Huds
 
             LocationData thisLocData = Game1.currentLocation.GetData();
             String jThisLocData = JsonSerializer.Serialize(thisLocData, new JsonSerializerOptions { WriteIndented = true });
-            Logger.Info($"This LocationData: {jThisLocData}");
+            //Logger.Info($"This LocationData: {jThisLocData}");
 
             Dictionary<string, string> allFishData = DataLoader.Fish(Game1.content);
 
             string locName = locationName ?? currLocation.Name;
-            Logger.Info($"GetFishes: Loc: {locName} ** Season: {season}");
+            //Logger.Info($"GetFishes: Loc: {locName} ** Season: {season}");
 
             if (locName.Equals("WitchSwamp")
                 && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone")
@@ -124,10 +124,10 @@ namespace JoysOfEfficiency.Huds
             }
 
             String JSONFishes = JsonSerializer.Serialize(allFishData, new JsonSerializerOptions { WriteIndented = true });
-            Logger.Info($"All Fishes: {JSONFishes}");
+            //Logger.Info($"All Fishes: {JSONFishes}");
             Dictionary<string, LocationData> dictionary = DataLoader.Locations(Game1.content);
             String jDict = JsonSerializer.Serialize(dictionary, new JsonSerializerOptions { WriteIndented = true });
-            Logger.Info($"All Location Data: {jDict}");
+            //Logger.Info($"All Location Data: {jDict}");
 
             IEnumerable<SpawnFishData> possibleFish = dictionary["Default"].Fish;
             if (thisLocData != null && thisLocData.Fish?.Count > 0)
@@ -141,15 +141,15 @@ namespace JoysOfEfficiency.Huds
                 return dictFish;
             }
 
-            Logger.Info($"Finding fish area for farmer: {who.Tile.X},{who.Tile.Y} [bobber] {rod.bobber.X},{rod.bobber.Y} ** {currLocation.locationContextId} ** ");
+            //Logger.Info($"Finding fish area for farmer: {who.Tile.X},{who.Tile.Y} [bobber] {rod.bobber.X},{rod.bobber.Y} ** {currLocation.locationContextId} ** ");
             LocationContextData bubba = currLocation.GetLocationContext();
             String jsonBubba = JsonSerializer.Serialize(bubba, new JsonSerializerOptions { WriteIndented = true });
-            Logger.Info($"GameLocationContext: {jsonBubba}");
+            //Logger.Info($"GameLocationContext: {jsonBubba}");
 
             currLocation.TryGetFishAreaForTile(who.Tile, out var fishAreaID, out var fishAreaData);
-            Logger.Info($"FishAreaID: {fishAreaID}");
+            //Logger.Info($"FishAreaID: {fishAreaID}");
             String jsonFishAreaData = JsonSerializer.Serialize(fishAreaData, new JsonSerializerOptions { WriteIndented = true });
-            Logger.Info($"FishAreaData: {jsonFishAreaData}");
+            //Logger.Info($"FishAreaData: {jsonFishAreaData}");
 
             possibleFish =  from p in possibleFish
                             orderby p.Precedence, Game1.random.Next()
@@ -157,7 +157,7 @@ namespace JoysOfEfficiency.Huds
                             select p;
 
             String JSON = JsonSerializer.Serialize(possibleFish, new JsonSerializerOptions{WriteIndented = true});
-            Logger.Info($"Possibru Fishu:\n{JSON}");
+            //Logger.Info($"Possibru Fishu:\n{JSON}");
 
             // Reference: https://stardewvalleywiki.com/Modding:Fish_data#Fish_data_and_spawn_criteria
             //              0          1   2      3  4    5            6                   7     8           9  10 11 12  13
@@ -179,13 +179,21 @@ namespace JoysOfEfficiency.Huds
             double chance = 0.0d;
             foreach (SpawnFishData f in possibleFish)
             {
-                String id = f.Id;
-                Logger.Info($"Testing Fish ID: {id}");
+                // Use ItemId unless its null. Account for mods with non-standard IDs for vanilla records
+                String id = f.ItemId;
+                if (id == null) { id = f.Id; }
                 id = Regex.Replace(id, "\\(O\\)", "");
-                Logger.Info($"Testing Fish ID: {id}");
+                //Logger.Info($"Testing Fish ID: {id}");
 
-                // Any list item like "(O)167|(O)168|(O)169|(O)170|(O)171|(O)172" is a list of garbage.  Skip it.
+                // Any list item like "(O)167|(O)168|(O)169|(O)170|(O)171|(O)172" is a list of garbage. Handle it.
                 if (id.Contains('|'))
+                {
+                    dictFish["168"] = f.Chance;
+                    continue;
+                }
+
+                // Furniture, wrong conditions or the item doesnt exist. Skip it
+                if (id.Contains("(F)") || !GameStateQuery.CheckConditions(f.Condition) || !ItemRegistry.Exists(id))
                 {
                     continue;
                 }
@@ -193,15 +201,15 @@ namespace JoysOfEfficiency.Huds
                 // If it's not found in the allFishData, assign the chance from possibleFish instead
                 if (!allFishData.ContainsKey(id))
                 {
-                    Logger.Info($"\tdictFish: Adding {id} :: {f.Chance}");
-                    dictFish.Add(id, f.Chance);
+                    //Logger.Info($"\tdictFish: Adding {id} :: {f.Chance}");
+                    dictFish[id] = f.Chance;
                     continue;
                 }
 
-                Logger.Info($"Parsing through allFishData for {f.Id} now...");
+                //Logger.Info($"Parsing through allFishData for {f.Id} now...");
                 String[] fishData = allFishData[id].Split('/');
                 String jFishData = JsonSerializer.Serialize(fishData, new JsonSerializerOptions{WriteIndented = true});
-                Logger.Info($"\tID: {id} *** {jFishData}");
+                //Logger.Info($"\tID: {id} *** {jFishData}");
 
                 // If the time isn't in the fish's catch times, go on to next fish.
                 String[] catchTimes = fishData[5].Split(' ');
@@ -236,11 +244,11 @@ namespace JoysOfEfficiency.Huds
                 spawnMultiplier += who.FishingLevel / 50f;
                 chance = Math.Min(spawnMultiplier, 0.89999997615814209);
 
-                Logger.Info($"dictFish: Adding {id} :: {chance}");
-                dictFish.Add(id, chance);
+                //Logger.Info($"dictFish: Adding {id} :: {chance}");
+                dictFish[id] = chance;
             }
             String jDictFish = JsonSerializer.Serialize(dictFish, new JsonSerializerOptions{WriteIndented = true});
-            Logger.Info($"Possible Fish:\n{jDictFish}");
+            //Logger.Info($"Possible Fish:\n{jDictFish}");
 
             return dictFish;
         }
