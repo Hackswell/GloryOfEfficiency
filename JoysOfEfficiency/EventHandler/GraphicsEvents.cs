@@ -24,7 +24,7 @@ namespace JoysOfEfficiency.EventHandler
             {
                 GiftInformationTooltip.DrawTooltip();
             }
-            if (Conf.FishingProbabilitiesInfo && Game1.player.CurrentTool is FishingRod rod && rod.isFishing)
+            if (Game1.player.CurrentTool is FishingRod rod && rod.isFishing)
             {
                 FishingProbabilitiesBox.PrintFishingInfo();
             }

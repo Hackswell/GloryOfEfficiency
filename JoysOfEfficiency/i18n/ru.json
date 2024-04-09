@@ -2,9 +2,9 @@
   "button.awaiting": "Нажмите любую кнопку, чтобы назначить её...",
   "button.conflict": "Нажатая вами Кнопка уже используется",
   "button.esc": "Нажмите Esc для Отмены",
-  
+
   "estimatedprice.title": "Примерная Стоимость",
-  
+
   "fishinfo.quality": "Качество: ",
   "fishinfo.size": "Размер: {0}дюймов",
   "fishinfo.species": "Особь: {0}",
@@ -12,7 +12,7 @@
   "fishinfo.treasure.caught": "Сокровище поймано!",
   "fishinfo.treasure.incoming": "Сокровище через {0:f1}с.",
   "fishinfo.price": "Цена продажи:{0}G",
-  
+
   "hud.paused": "Игра на паузе.",
 
   "ladder": "Лестница появилась!",
@@ -20,7 +20,7 @@
   "location.awaiting": "Нажмите, чтобы выбрать локацию.",
 
   "monsters.tally": "{0}: {1} убито",
-  
+
   "options.AnimalHarvestRadius": "Дальность поиска животных (в тайлах)",
   "options.AutoAnimalDoor": "Автоматически Открывать/Закрывать Двери Животных",
   "options.AutoCollectCollectibles": "Автоматически собирать дикие растения поблизости",
@@ -59,6 +59,10 @@
   "options.FishInfo": "Показывать окошко с информацией по рыбе",
   "options.FishingInfo": "Показывать окошко с информацией по рыбе",
   "options.FishingProbabilitiesInfo": "Показывать вероятность ловли рыбы",
+  "options.FishingTackleInfo": "Нарисуйте текущую наживку и поплавки.",
+  "options.TackleBoxAttach": "Прикрепите коробку для снастей к коробке вероятности вылова рыбы.",
+  "options.TackleBoxLocation": "Координаты верхнего левого информационного окна",
+  "options.ProbBoxMaxFish": "Количество рыб в столбце",
   "options.GiftInformation": "Показывать Окошко с Информацией по Подаркам",
   "options.HealthToEatRatio": "Порог Здоровья",
   "options.IdleTimeout": "Длительность простоя перед паузой",
@@ -89,11 +93,11 @@
   "options.B": "B",
   "options.previewColor": "Просмотр Оттенка:",
   "options.register": "Учитывать",
-  
+
   "flower.register": "{0} цветов будет объединяться.",
   "flower.unregister": "{0} цветов больше не будет объединяться.",
   "flower.vanilla": "Нельзя не учитывать обычные цветы.",
-  
+
   "quality.gold": "Золотое",
   "quality.iridium": "Иридиевое",
   "quality.normal": "Нормальное",

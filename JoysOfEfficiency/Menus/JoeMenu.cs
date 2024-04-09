@@ -212,9 +212,16 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Fishing Probabilities Information"));
                 tab.AddOptionsElement(new ModifiedCheckBox("FishingProbabilitiesInfo", 26, Config.FishingProbabilitiesInfo, OnCheckboxValueChanged));
+                tab.AddOptionsElement(new ModifiedSlider("ProbBoxMaxFish", 19, Config.ProbBoxMaxFish, 5, 25, OnSliderValueChanged));
                 tab.AddOptionsElement(new ModifiedClickListener(this, "ProbBoxLocation", 0, Config.ProbBoxCoordinates.X, Config.ProbBoxCoordinates.Y, translation, OnSomewhereClicked, OnStartListeningClick));
                 tab.AddOptionsElement(new ModifiedCheckBox("MorePreciseProbabilities", 37, Config.MorePreciseProbabilities, OnCheckboxValueChanged, i => !Config.FishingProbabilitiesInfo));
                 tab.AddOptionsElement(new ModifiedSlider("TrialOfExamine", 15, Config.TrialOfExamine, 1, 50, OnSliderValueChanged, () => !(Config.FishingProbabilitiesInfo && Config.MorePreciseProbabilities)));
+
+                tab.AddOptionsElement(new EmptyLabel());
+                tab.AddOptionsElement(new LabelComponent("Fishing Tackle Information"));
+                tab.AddOptionsElement(new ModifiedCheckBox("FishingTackleInfo", 43, Config.FishingTackleInfo, OnCheckboxValueChanged));
+                tab.AddOptionsElement(new ModifiedCheckBox("TackleBoxAttach", 44, Config.TackleBoxAttach, OnCheckboxValueChanged));
+                tab.AddOptionsElement(new ModifiedClickListener(this, "TackleBoxLocation", 2, Config.TackleBoxCoordinates.X, Config.TackleBoxCoordinates.Y, translation, OnSomewhereClicked, OnStartListeningClick));
 
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Show Shipping Price"));
@@ -296,6 +303,9 @@ namespace JoysOfEfficiency.Menus
                 case 1:
                     Config.PriceBoxCoordinates = point;
                     break;
+                case 2:
+                    Config.TackleBoxCoordinates = point;
+                    break;
                 default: return;
             }
             InstanceHolder.WriteConfig();
@@ -365,6 +375,8 @@ namespace JoysOfEfficiency.Menus
                 case 40: Config.BreakRocks = value; break;
                 case 41: Config.ChopTwigs = value; break;
                 case 42: Config.AutoDepositSeedMaker = value; break;
+                case 43: Config.FishingTackleInfo = value; break;
+                case 44: Config.TackleBoxAttach = value; break;
                 default: return;
             }
             InstanceHolder.WriteConfig();
@@ -390,6 +402,7 @@ namespace JoysOfEfficiency.Menus
                 case 16: Config.RadiusFarmCleanup = value; break;
                 case 17: Config.ThrowPower = value / 10.0f; break;
                 case 18: Config.ThresholdStaminaPercentage = value; break;
+                case 19: Config.ProbBoxMaxFish = value; break;
                 default: return;
             }
 

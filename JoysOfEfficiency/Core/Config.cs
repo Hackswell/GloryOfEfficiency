@@ -38,6 +38,9 @@ namespace JoysOfEfficiency.Core
         public SButton ToggleAfkFishing { get; set; } = SButton.End;
 
         public bool FishingInfo { get; set; } = true;
+        public bool FishingTackleInfo { get; set; } = false;
+        public bool TackleBoxAttach { get; set; } = false;
+        public Point TackleBoxCoordinates { get; set; } = new Point(40, 500);
 
         public bool AutoGate { get; set; } = true;
 
@@ -110,6 +113,7 @@ namespace JoysOfEfficiency.Core
 
         //Fishing Probabilities
         public bool FishingProbabilitiesInfo { get; set; } = false;
+        public int ProbBoxMaxFish { get; set; } = 10;
         public Point ProbBoxCoordinates { get; set; } = new Point(40, 500);
         public bool MorePreciseProbabilities { get; set; } = true;
         public int TrialOfExamine { get; set; } = 10;
