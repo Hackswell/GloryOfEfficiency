@@ -153,7 +153,8 @@ namespace JoysOfEfficiency.Automation
             }
             else
             {
-                string name = dirt.crop.whichForageCrop.Value;
+                string cropID = dirt.crop.indexOfHarvest.Value;
+                string name = ItemRegistry.ResolveMetadata(cropID)?.GetParsedData().DisplayName;
                 if (name == "")
                 {
                     return;
@@ -278,7 +279,7 @@ namespace JoysOfEfficiency.Automation
         private static bool IsBlackListed(Crop crop)
         {
             String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
-            return InstanceHolder.Config.HarvestException.Contains(Int32.Parse(index));
+            return InstanceHolder.Config.HarvestException.Contains(index);
         }
 
         private static bool ToggleBlackList(Crop crop)
@@ -286,11 +287,11 @@ namespace JoysOfEfficiency.Automation
             String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
             if (IsBlackListed(crop))
             {
-                InstanceHolder.Config.HarvestException.Remove(Int32.Parse(index));
+                InstanceHolder.Config.HarvestException.Remove(index);
             }
             else
             {
-                InstanceHolder.Config.HarvestException.Add(Int32.Parse(index));
+                InstanceHolder.Config.HarvestException.Add(index);
             }
 
             InstanceHolder.WriteConfig();
