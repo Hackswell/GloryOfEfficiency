@@ -51,7 +51,7 @@ namespace JoysOfEfficiency.Core
         public bool AutoHarvest { get; set; } = true;
         public int AutoHarvestRadius { get; set; } = 1;
         public bool ProtectNectarProducingFlower { get; set; } = true;
-        public List<int> HarvestException { get; set; } = new List<int>();
+        public List<String> HarvestException { get; set; } = new List<String>();
         public SButton ButtonToggleBlackList { get; set; } = Keys.F2.ToSButton();
 
         public bool AutoDestroyDeadCrops { get; set; } = true;
