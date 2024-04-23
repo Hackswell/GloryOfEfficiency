@@ -37,13 +37,22 @@ namespace JoysOfEfficiency.EventHandler
                         continue;
                     }
 
-                    if (location.Objects[loc].name == "Artifact Spot" || location.Objects[loc].name == "Seed Spot")
+                    if (location.Objects[loc].name == "Artifact Spot")
                     {
-                        Logger.Info($"** {location.Objects[loc].name} ** at [{loc.X},{loc.Y}]");
+                        Logger.Log($"ArtifactSpot: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
                         location.digUpArtifactSpot(x, y, player);
                         location.Objects.Remove(loc);
                         location.terrainFeatures.Add(loc, new HoeDirt());
                         flag = true;
+                    }
+                    else if (location.Objects[loc].name == "Seed Spot")
+                    {
+                        Logger.Log($"SeedSpot: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
+//                        location.performUseAction(location);
+//                        location.performToolAction(hoe, x, y);
+//                        hoe.DoFunction(location, x, y, 1, player);
+//                        location.Objects.Remove(loc);
+//                        location.terrainFeatures.Add(loc, new HoeDirt());
                     }
                 }
             }
