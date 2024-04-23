@@ -155,7 +155,8 @@ namespace JoysOfEfficiency.Automation
             }
             else
             {
-                string name = dirt.crop.whichForageCrop.Value;
+                string cropID = dirt.crop.indexOfHarvest.Value;
+                string name = ItemRegistry.ResolveMetadata(cropID)?.GetParsedData().DisplayName;
                 if (name == "")
                 {
                     return;
