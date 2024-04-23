@@ -5,9 +5,6 @@ using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.GameData.Crops;
-using StardewValley.Internal;
-using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
@@ -117,7 +114,7 @@ namespace JoysOfEfficiency.Automation
 
                 dirt.state.Value = 1;
                 Game1.player.Stamina -= consume;
-                can.WaterLeft--;
+                if (!can.IsBottomless) can.WaterLeft--;
                 watered = true;
             }
             foreach (IndoorPot pot in Util.GetObjectsWithin<IndoorPot>(InstanceHolder.Config.AutoWaterRadius))
@@ -132,7 +129,7 @@ namespace JoysOfEfficiency.Automation
                     dirt.state.Value = 1;
                     pot.showNextIndex.Value = true;
                     Game1.player.Stamina -= consume;
-                    can.WaterLeft--;
+                    if (!can.IsBottomless) can.WaterLeft--;
                     watered = true;
                 }
             }
