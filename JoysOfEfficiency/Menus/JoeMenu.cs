@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.OptionsElements;
 using JoysOfEfficiency.Utils;
@@ -109,7 +108,7 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new ModifiedSlider("CPUThresholdFishing", 0, (int)(Config.CpuThresholdFishing * 10), 0, 5, OnSliderValueChanged, () => !Config.AutoFishing, Format));
                 tab.AddOptionsElement(new ModifiedCheckBox("AutoReelRod", 6, Config.AutoReelRod, OnCheckboxValueChanged));
                 tab.AddOptionsElement(new ModifiedSlider("ThrowPower", 17, (int)(Config.ThrowPower * 10), 0, 10, OnSliderValueChanged, null, Format));
-                tab.AddOptionsElement(new ModifiedSlider("ThresholdStaminaPersentage", 18, Config.ThresholdStaminaPercentage, 10, 60, OnSliderValueChanged, null, Format));
+                tab.AddOptionsElement(new ModifiedSlider("ThresholdStaminaPercentage", 18, Config.ThresholdStaminaPercentage, 10, 60, OnSliderValueChanged, null, Format));
 
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Auto Gate"));
@@ -120,6 +119,7 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new ModifiedCheckBox("AutoEat", 10, Config.AutoEat, OnCheckboxValueChanged));
                 tab.AddOptionsElement(new ModifiedSlider("StaminaToEatRatio", 1, (int)(Config.StaminaToEatRatio * 10), 1, 8, OnSliderValueChanged, () => !Config.AutoEat, Format));
                 tab.AddOptionsElement(new ModifiedSlider("HealthToEatRatio", 2, (int)(Config.HealthToEatRatio * 10), 1, 8, OnSliderValueChanged, () => !Config.AutoEat, Format));
+                tab.AddOptionsElement(new ModifiedCheckBox("DontEatThat", 45, Config.DontEatThat, OnCheckboxValueChanged));
 
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Auto Harvest"));
@@ -173,7 +173,7 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new LabelComponent("Auto Shearing and Milking"));
                 tab.AddOptionsElement(new ModifiedCheckBox("AutoShearingAndMilking", 35, Config.AutoShearingAndMilking, OnCheckboxValueChanged));
                 tab.AddOptionsElement(new ModifiedSlider("AnimalHarvestRadius", 14, Config.AnimalHarvestRadius, 1, 3, OnSliderValueChanged, () => !Config.AutoShearingAndMilking || Config.BalancedMode));
-                
+
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Collect Letter Attachments And Quests"));
                 tab.AddOptionsElement(new ModifiedCheckBox("CollectLetterAttachmentsAndQuests", 36, Config.CollectLetterAttachmentsAndQuests, OnCheckboxValueChanged));
@@ -377,6 +377,7 @@ namespace JoysOfEfficiency.Menus
                 case 42: Config.AutoDepositSeedMaker = value; break;
                 case 43: Config.FishingTackleInfo = value; break;
                 case 44: Config.TackleBoxAttach = value; break;
+                case 45: Config.DontEatThat = value; break;
                 default: return;
             }
             InstanceHolder.WriteConfig();
@@ -865,7 +866,7 @@ namespace JoysOfEfficiency.Menus
         }
 
         /// <summary>
-        /// Try changing tab to a specified tab. 
+        /// Try changing tab to a specified tab.
         /// </summary>
         /// <param name="which">Which tab index to change.</param>
         private void TryToChangeTab(int which)

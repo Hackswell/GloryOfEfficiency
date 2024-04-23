@@ -55,6 +55,7 @@ namespace JoysOfEfficiency.Automation
             {
                 Vector2 loc = kv.Key;
                 HoeDirt dirt = kv.Value;
+                if (dirt.crop != null)   Logger.Log($"Crop: {dirt.crop.indexOfHarvest} ** {dirt.crop.whichForageCrop}");
                 if (dirt.crop == null || !dirt.readyForHarvest())
                 {
                     continue;
@@ -277,20 +278,20 @@ namespace JoysOfEfficiency.Automation
 
         private static bool IsBlackListed(Crop crop)
         {
-            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
-            return InstanceHolder.Config.HarvestException.Contains(index);
+            String cropName = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            return InstanceHolder.Config.HarvestException.Contains(cropName);
         }
 
         private static bool ToggleBlackList(Crop crop)
         {
-            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            String cropName = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
             if (IsBlackListed(crop))
             {
-                InstanceHolder.Config.HarvestException.Remove(index);
+                InstanceHolder.Config.HarvestException.Remove(cropName);
             }
             else
             {
-                InstanceHolder.Config.HarvestException.Add(index);
+                InstanceHolder.Config.HarvestException.Add(cropName);
             }
 
             InstanceHolder.WriteConfig();

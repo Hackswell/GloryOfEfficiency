@@ -21,6 +21,7 @@ namespace JoysOfEfficiency.Automation
             {
                 return;
             }
+
             foreach (SVObject obj in Util.GetObjectsWithin<SVObject>(InstanceHolder.Config.MachineRadius).Where(IsObjectMachine))
             {
                 Vector2 loc = Util.GetLocationOf(currentLocation, obj);
@@ -30,12 +31,12 @@ namespace JoysOfEfficiency.Automation
                 if (obj.Name == "Keg" && item.ParentSheetIndex == 433 && item.Stack < 5)
                 {
                     // You don't have enough beans.
-                    Logger.Info($"Trying to deposit {item.Name} into KEG: {obj.Name}. Not enough beans!");
+                    Logger.Log($"Trying to deposit {item.Name} into KEG: {obj.Name}. Not enough beans!");
                     return;
                 }
 
                 bool accepted = obj.Name == "Furnace" ? CanFurnaceAcceptItem(item, player) : Utility.isThereAnObjectHereWhichAcceptsThisItem(currentLocation, item, (int)loc.X * tileSize, (int)loc.Y * tileSize);
-                Logger.Info($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
+                Logger.Log($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
                 if (obj is Cask)
                 {
                     if (ModEntry.IsCoGOn || ModEntry.IsCaOn)
@@ -56,25 +57,26 @@ namespace JoysOfEfficiency.Automation
                     if (item.Name == "Bait" || item.Name == "Magic Bait")
                     {
                         accepted = true;
-                        Logger.Info($"\tCrab Pot and {item.Name} are now ACCEPTED.");
+                        Logger.Log($"\tCrab Pot and {item.Name} are now ACCEPTED.");
                     }
                 }
-                else if (obj.Name == "Seed Maker")
+                else if (obj.Name == "Seed Maker" && InstanceHolder.Config.AutoDepositSeedMaker == false)
                 {
-                    accepted = InstanceHolder.Config.AutoDepositSeedMaker == false ? false : true;
+                    continue;
                 }
 
                 if (!accepted)
                     continue;
 
-                Logger.Info($"Trying to drop {item.Name} into {obj}.");
                 // performObjectDropInAction but only if it's currently empty
-                obj.performObjectDropInAction(item, false, player);
-                if (!(obj.Name == "Furnace" || obj.Name == "Charcoal Kiln") || item.Stack == 0)
+                if (obj.performObjectDropInAction(item, false, player, true))
                 {
                     player.reduceActiveItemByOne();
+                    Logger.Log($"Item {obj} MANUALLY consuming {item.Name}");
+                } else {
+                    Logger.Log($"Item {obj} should have already consumed {item.Name}");
                 }
-                Logger.Info($"DONE dropping {item.Name} into {obj}.");
+                Logger.Log($"DONE dropping {item.Name} into {obj}.");
 
                 return;
             }
@@ -85,8 +87,16 @@ namespace JoysOfEfficiency.Automation
             Farmer player = Game1.player;
             foreach (SVObject obj in Util.GetObjectsWithin<SVObject>(InstanceHolder.Config.MachineRadius).Where(IsObjectMachine))
             {
-                if (!obj.readyForHarvest.Value || obj.heldObject.Value == null)
+                // Nothing in the machine...
+                if (obj.heldObject.Value == null)
+                {
                     continue;
+                }
+                else if (!obj.readyForHarvest.Value)
+                {
+                    Logger.Log($"Time until {obj.Name} ready for collecting item {obj.heldObject.Value.Name}: {obj.MinutesUntilReady} game minutes.");
+                    continue;
+                }
 
                 Item item = obj.heldObject.Value;
                 if (player.couldInventoryAcceptThisItem(item))
@@ -96,7 +106,7 @@ namespace JoysOfEfficiency.Automation
 
         private static bool CanFurnaceAcceptItem(Item item, Farmer player)
         {
-            Logger.Info($"{player.Items.ContainsId(Object.coalQID)} ** {item.Stack} ** {item.ParentSheetIndex}");
+            Logger.Log($"{player.Items.ContainsId(Object.coalQID)} ** {item.Stack} ** {item.ParentSheetIndex}");
 
             // Minimum of one coal in inventory
             if (! player.Items.ContainsId(Object.coalQID, 1))
@@ -128,7 +138,6 @@ namespace JoysOfEfficiency.Automation
 
         private static bool IsObjectMachine(SVObject obj)
         {
-            Logger.Log($"IsObjectMachine: Name: {obj.Name}");
             if (InstanceHolder.Config.MachineTypes.Contains(obj.Name))
             {
                 return true;

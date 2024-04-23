@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Linq;
@@ -142,7 +142,7 @@ namespace JoysOfEfficiency.Huds
             // Get Location Data
             LocationData thisLocData = Game1.currentLocation.GetData();
             string locName = locationName ?? currLocation.Name;
-            if (Game1.debugMode) Logger.Info($"GetFishes: Loc: {locName} ** Season: {season}");
+            Logger.Log($"GetFishes: Loc: {locName} ** Season: {season}");
 
             // If the Henchman is gone, and the user has no void mayo, 25% chance to fish it up
             if (locName.Equals("WitchSwamp") && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone") && !Game1.player.Items.ContainsId("Void Mayonnaise", 1))
