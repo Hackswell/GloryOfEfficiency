@@ -4,7 +4,7 @@
   "button.esc": "按 Esc 取消",
 
   "estimatedprice.title": "预估价格",
-  
+
   "fishinfo.quality": "品质: ",
   "fishinfo.size": "尺寸: {0} 厘米",
   "fishinfo.species": "品种: {0}",
@@ -18,7 +18,7 @@
   "ladder": "梯子出现了！",
 
   "location.awaiting": "单击某处以指定所需的位置。",
-  
+
   "monsters.tally": "{0}：{1} 击杀",
 
   "options.AnimalHarvestRadius": "搜索动物的地图格半径",
@@ -59,6 +59,10 @@
   "options.FishInfo": "显示钓鱼信息",
   "options.FishingInfo": "显示钓鱼信息",
   "options.FishingProbabilitiesInfo": "显示鱼的上竿几率",
+  "options.FishingTackleInfo": "绘制当前的鱼饵和浮标",
+  "options.TackleBoxAttach": "将钓具盒连接到鱼类概率盒",
+  "options.TackleBoxLocation": "信息框的左上角坐标",
+  "options.ProbBoxMaxFish": "每列的鱼数",
   "options.GiftInformation": "显示礼物提示",
   "options.HealthToEatRatio": "自动进食阈值（生命值）",
   "options.IdleTimeout": "暂停游戏的空闲超时",
@@ -83,16 +87,16 @@
   "options.BreakRocks": "打破小石头（镐）",
   "options.ChopTwigs": "砍树枝（斧头）",
   "options.PriceBoxCoordinates": "信息框的左上角坐标",
-  
+
   "options.ThrowPower": "鱼钩投掷力度",
   "options.ThresholdStaminaPersentage": "停止钓鱼的体力值",
 
-  "options.ToggleAFKFishing":  "切换 AFK 钓鱼模式",
+  "options.ToggleAFKFishing": "切换 AFK 钓鱼模式",
 
   "hud.afk.passedout": "已停止钓鱼，因为你昏过去了。",
   "hud.afk.on": "AFK 钓鱼模式开启",
   "hud.afk.off": "AFK 钓鱼模式关闭",
-  "hud.afk.tired":  "已停止钓鱼，因为你累了。",
+  "hud.afk.tired": "已停止钓鱼，因为你累了。",
 
   "options.flower": "花：{0}",
   "options.R": "R",

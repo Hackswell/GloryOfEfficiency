@@ -6,6 +6,8 @@ using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.GameData.Crops;
+using StardewValley.Internal;
+using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
@@ -150,17 +152,13 @@ namespace JoysOfEfficiency.Automation
                 return;
 
             if (dirt.crop == null)
-            {
                 Util.ShowHudMessage("There is no crop under the cursor");
-            }
             else
             {
                 string cropID = dirt.crop.indexOfHarvest.Value;
                 string name = ItemRegistry.ResolveMetadata(cropID)?.GetParsedData().DisplayName;
                 if (name == "")
-                {
                     return;
-                }
 
                 string text = ToggleBlackList(dirt.crop)
                     ? $"{name} has been added to AutoHarvest exception"
