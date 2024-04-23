@@ -45,10 +45,39 @@ namespace JoysOfEfficiency.Core
         public float StaminaToEatRatio { get; set; } = 0.2f;
         public float HealthToEatRatio { get; set; } = 0.2f;
 
+
+        public bool DontEatThat { get; set; } = false;
+
+        public List<String> DontEatCategories { get; set; } = new List<String>()
+        {
+            "Artisan Goods",
+            "Animal Product",
+            "Fish",
+            "Crop",
+            "Vegetable",
+            "Flower",
+            "Harmful",
+        };
+        public List<String> DontEat { get; set; } = new List<String>()
+        {
+            "Holly",
+            "Oil",
+            "Red Mushroom",
+            "Sap",
+            "Truffle",
+        };
+        public List<String> DoEat { get; set; } = new List<String>()
+        {
+            "Mayonnaise",
+            "Beer",
+            "Green Tea",
+        };
+
+
         public bool AutoHarvest { get; set; } = true;
         public int AutoHarvestRadius { get; set; } = 1;
         public bool ProtectNectarProducingFlower { get; set; } = true;
-        public List<int> HarvestException { get; set; } = new List<int>();
+        public List<string> HarvestException { get; set; } = new List<string>();
         public SButton ButtonToggleBlackList { get; set; } = Keys.F2.ToSButton();
 
         public bool AutoDestroyDeadCrops { get; set; } = true;
@@ -74,6 +103,8 @@ namespace JoysOfEfficiency.Core
 
         public List<String> MachineTypes { get; set; } = new List<String>()
         {
+            "Anvil",
+            "Bait Maker",
             "Bee House",
             "Cask",
             "Charcoal Kiln",
@@ -81,13 +112,19 @@ namespace JoysOfEfficiency.Core
             "Coffee Maker",
             "Crab Pot",
             "Crystalarium",
+            "Dehydrator",
+            "Deluxe Worm Bin",
+            "Fish Smoker",
             "Furnace",
+            "Heavy Furnace",
             "Heavy Tapper",
             "Incubator",
             "Keg",
             "Loom",
+            "Lightning Rod",
             "Mayonnaise Machine",
             "Mushroom Box",
+            "Mushroom Log",
             "Oil Maker",
             "Preserves Jar",
             "Recycling Machine",
@@ -99,13 +136,6 @@ namespace JoysOfEfficiency.Core
             "Statue Of Perfection",
             "Tapper",
             "Worm Bin",
-            "Deluxe Worm Bin",
-            "Dehydrator",
-            "Mushroom Log",
-            "Bait Maker",
-            "Heavy Furnace",
-            "Fish Smoker",
-            "Anvil"
         };
 
         //Fishing Probabilities

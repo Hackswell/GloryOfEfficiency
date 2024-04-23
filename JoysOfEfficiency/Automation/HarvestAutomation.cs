@@ -5,6 +5,7 @@ using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.GameData.Crops;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
@@ -52,6 +53,7 @@ namespace JoysOfEfficiency.Automation
             {
                 Vector2 loc = kv.Key;
                 HoeDirt dirt = kv.Value;
+                if (dirt.crop != null)   Logger.Log($"Crop: {dirt.crop.indexOfHarvest} ** {dirt.crop.whichForageCrop}");
                 if (dirt.crop == null || !dirt.readyForHarvest())
                 {
                     continue;
@@ -277,20 +279,20 @@ namespace JoysOfEfficiency.Automation
 
         private static bool IsBlackListed(Crop crop)
         {
-            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
-            return InstanceHolder.Config.HarvestException.Contains(Int32.Parse(index));
+            String cropName = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            return InstanceHolder.Config.HarvestException.Contains(cropName);
         }
 
         private static bool ToggleBlackList(Crop crop)
         {
-            String index = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
+            String cropName = crop.forageCrop.Value ? crop.whichForageCrop.Value : crop.indexOfHarvest.Value;
             if (IsBlackListed(crop))
             {
-                InstanceHolder.Config.HarvestException.Remove(Int32.Parse(index));
+                InstanceHolder.Config.HarvestException.Remove(cropName);
             }
             else
             {
-                InstanceHolder.Config.HarvestException.Add(Int32.Parse(index));
+                InstanceHolder.Config.HarvestException.Add(cropName);
             }
 
             InstanceHolder.WriteConfig();
