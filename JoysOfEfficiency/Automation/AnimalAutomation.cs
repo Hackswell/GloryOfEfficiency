@@ -110,17 +110,17 @@ namespace JoysOfEfficiency.Automation
         {
             int radius = Config.AutoPetRadius * Game1.tileSize;
             Rectangle bb = Util.Expand(Game1.player.GetBoundingBox(), radius);
-            foreach (FarmAnimal animal in Util.GetAnimalsList(Game1.player))
+            foreach (FarmAnimal animal in GetAnimalsList(Game1.player))
             {
+                if (Game1.timeOfDay >= 1900 && !animal.isMoving())
+                {
+                    continue;
+                }
                 if (!bb.Contains((int) animal.Position.X, (int) animal.Position.Y) || animal.wasPet.Value)
                 {
                     continue;
                 }
 
-                if (Game1.timeOfDay >= 1900 && !animal.isMoving())
-                {
-                    continue;
-                }
                 Logger.Log($"Petted {animal.displayType}'{animal.Name}' @{animal.position}");
                 animal.pet(Game1.player);
             }
@@ -130,7 +130,7 @@ namespace JoysOfEfficiency.Automation
         {
             int radius = InstanceHolder.Config.AnimalHarvestRadius * Game1.tileSize;
             Rectangle bb = Util.Expand(player.GetBoundingBox(), radius);
-            foreach (FarmAnimal animal in Util.GetAnimalsList(player))
+            foreach (FarmAnimal animal in GetAnimalsList(player))
             {
                 string lowerType = animal.type.Value.ToLower();
                 if (animal.currentProduce.Value is null || animal.isBaby() ||
@@ -180,5 +180,27 @@ namespace JoysOfEfficiency.Automation
             return pet.lastPetDay.ContainsKey(Game1.player.UniqueMultiplayerID) &&
                    pet.lastPetDay[Game1.player.UniqueMultiplayerID] == Game1.Date.TotalDays;
         }
+
+
+        private static IEnumerable<FarmAnimal> GetAnimalsList(Character player)
+        {
+            HashSet<FarmAnimal> list = new HashSet<FarmAnimal>();
+            switch (player.currentLocation)
+            {
+                case Farm farm:
+                {
+                    list.IntersectWith(farm.animals.Values);
+                    break;
+                }
+
+                case AnimalHouse house:
+                {
+                    list.IntersectWith(house.animals.Values);
+                    break;
+                }
+            }
+            return list;
+        }
+
     }
 }

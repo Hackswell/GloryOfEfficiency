@@ -70,26 +70,6 @@ namespace JoysOfEfficiency.Utils
             ShowHudMessage(Translation.Get(key), duration);
         }
 
-        public static IEnumerable<FarmAnimal> GetAnimalsList(Character player)
-        {
-            List<FarmAnimal> list = new List<FarmAnimal>();
-            switch (player.currentLocation)
-            {
-                case Farm farm:
-                {
-                    list.AddRange(farm.animals.Values);
-                    break;
-                }
-
-                case AnimalHouse house:
-                {
-                    list.AddRange(house.animals.Values);
-                    break;
-                }
-            }
-            return list;
-        }
-
         public static Rectangle Expand(Rectangle rect, int radius)
         {
             return new Rectangle(rect.Left - radius, rect.Top - radius, 2 * radius, 2 * radius);

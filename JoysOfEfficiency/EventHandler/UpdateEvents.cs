@@ -24,12 +24,13 @@ namespace JoysOfEfficiency.EventHandler
 
         private static readonly Logger Logger = new Logger("UpdateEvent");
 
+        // This updates every GameTick (approx 60x / second)
         public void OnGameUpdateEvent(object sender, UpdateTickedEventArgs args)
         {
             OnEveryUpdate();
-            if (args.IsMultipleOf(8))
+            if (args.IsMultipleOf(6))
             {
-                OnGameEighthUpdate();
+                OnGameSixthUpdate();
             }
         }
 
@@ -57,9 +58,10 @@ namespace JoysOfEfficiency.EventHandler
             GiftInformationTooltip.UpdateTooltip();
         }
 
-        private void OnGameEighthUpdate()
+        // Every sixth tick.  Approx 0.10 seconds
+        private void OnGameSixthUpdate()
         {
-            if (Game1.currentGameTime == null)
+            if (Game1.currentGameTime == null || !Context.IsWorldReady || !Context.IsPlayerFree)
             {
                 return;
             }
@@ -69,42 +71,36 @@ namespace JoysOfEfficiency.EventHandler
                 InventoryAutomation.TryCloseItemGrabMenu(menu);
             }
 
-            if (!Context.IsWorldReady || !Context.IsPlayerFree)
-            {
-                return;
-            }
-
             Farmer player = Game1.player;
             GameLocation location = Game1.currentLocation;
             try
             {
-                if (Conf.AutoReelRod)
+                if (Game1.currentLocation is MineShaft { isFallingDownShaft: true })
                 {
-                    AutoFisher.AutoReelRod();
-                }
-                if (Game1.currentLocation is MineShaft shaft)
-                {
-                    if (shaft.isFallingDownShaft)
-                    {
-                        return;
-                    }
+                    return;
                 }
                 if (!Context.CanPlayerMove)
                 {
                     return;
                 }
-                if (Conf.UnifyFlowerColors)
+                if (Conf.AutoReelRod)
                 {
-                    FlowerColorUnifier.UnifyFlowerColors();
+                    AutoFisher.AutoReelRod();
                 }
 
-                _ticks = (_ticks + 1) % 8;
+                // Balanced mode tries to keep JoE actions to once every 1.0 second
+                _ticks = (_ticks + 1) % 6;
                 if (Conf.BalancedMode && _ticks != 0)
                 {
                     return;
                 }
 
-                FarmCleaner.OnEighthUpdate();
+
+                FarmCleaner.OnSixthUpdate();
+                if (Conf.UnifyFlowerColors)
+                {
+                    FlowerColorUnifier.UnifyFlowerColors();
+                }
                 if (Conf.AutoEat)
                 {
                     FoodAutomation.TryToEatIfNeeded(player);
@@ -121,7 +117,6 @@ namespace JoysOfEfficiency.EventHandler
                 {
                     AnimalAutomation.PetNearbyAnimals();
                 }
-
                 if (Conf.AutoShearingAndMilking)
                 {
                     AnimalAutomation.ShearingAndMilking(player);

@@ -17,7 +17,7 @@ namespace JoysOfEfficiency.Automation
 
         private static readonly Logger Logger = new Logger("FarmCleaner");
 
-        public static void OnEighthUpdate()
+        public static void OnSixthUpdate()
         {
             GameLocation farm = Game1.currentLocation;
             if (!(farm is Farm || farm is IslandWest))
