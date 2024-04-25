@@ -41,6 +41,7 @@ AutoDigArtifactSpot, AutoDepositIngredient, and AutoPullMachineResult.***
 
 **[CONFIG]**
 - BalancedMode("Automation" bool, default:true) - whether this utility is enabled.
+- RunEveryNthTick("General" uint, default:15) - Run JoE timing loops every Nth tick (1 tick == 1/60 second).
 
 ## Mine Info GUI
 With this utility, you can check how many stones left, and monster kills tally counter, and whether ladder has spawned in mines.
@@ -192,6 +193,7 @@ This utility will try to pull results from nearby machines and give it to the fa
   -     "Anvil",
         "Bait Maker",
         "Bee House",
+  -     "Bone Mill",
         "Cask",
         "Charcoal Kiln",
         "Cheese Press",
@@ -221,7 +223,8 @@ This utility will try to pull results from nearby machines and give it to the fa
         "Statue Of Endless Fortune",
         "Statue Of Perfection",
         "Tapper",
-        "Worm Bin"
+  -     "Wood Chipper",
+        "Worm Bin",
 
 ## Auto Pet Nearby Pets
 Oh, seriously you want to pet pets automatically?

@@ -8,7 +8,8 @@ namespace JoysOfEfficiency.Core
 {
     internal class Config
     {
-
+        public bool BalancedMode { get; set; } = true;
+        public uint RunEveryNthTick { get; set; } = 15;      // If BalancedMode is False, then run every 15th tick by default (0.25 seconds)
         public bool SafeMode { get; set; } = false;
 
         public bool MineInfoGui { get; set; } = true;
@@ -97,7 +98,6 @@ namespace JoysOfEfficiency.Core
         public bool AutoShakeFruitedPlants { get; set; } = true;
         public int AutoShakeRadius { get; set; } = 1;
 
-        public bool BalancedMode { get; set; } = true;
 
         public bool AutoDepositIngredient { get; set; } = false;
         public bool AutoDepositSeedMaker { get; set; } = false;
@@ -109,6 +109,7 @@ namespace JoysOfEfficiency.Core
             "Anvil",
             "Bait Maker",
             "Bee House",
+            "Bone Mill",
             "Cask",
             "Charcoal Kiln",
             "Cheese Press",
@@ -138,6 +139,7 @@ namespace JoysOfEfficiency.Core
             "Statue Of Endless Fortune",
             "Statue Of Perfection",
             "Tapper",
+            "Wood Chipper",
             "Worm Bin",
         };
 

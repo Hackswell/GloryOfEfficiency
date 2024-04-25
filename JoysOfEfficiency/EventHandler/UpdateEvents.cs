@@ -17,20 +17,21 @@ namespace JoysOfEfficiency.EventHandler
     {
         public static bool DayEnded { get; set; }
 
-        private int _ticks;
-
-
         private static Config Conf => InstanceHolder.Config;
 
         private static readonly Logger Logger = new Logger("UpdateEvent");
+
+        // Run Every Nth tick... unless balanced mode, then it's 60 ticks (1 second)
+        private uint NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick;
 
         // This updates every GameTick (approx 60x / second)
         public void OnGameUpdateEvent(object sender, UpdateTickedEventArgs args)
         {
             OnEveryUpdate();
-            if (args.IsMultipleOf(6))
+            if (args.IsMultipleOf(NthTick))
             {
-                OnGameSixthUpdate();
+                OnGameNthTickUpdate();
+                NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick; // Update in case config has changed...
             }
         }
 
@@ -58,14 +59,13 @@ namespace JoysOfEfficiency.EventHandler
             GiftInformationTooltip.UpdateTooltip();
         }
 
-        // Every sixth tick.  Approx 0.10 seconds
-        private void OnGameSixthUpdate()
+        // Every Nth tick.  Default is 15. 60 == 1.00 seconds; 15 == 0.25 seconds; 6 == 0.10 seconds.
+        private void OnGameNthTickUpdate()
         {
             if (Game1.currentGameTime == null || !Context.IsWorldReady || !Context.IsPlayerFree)
             {
                 return;
             }
-
             if (Conf.CloseTreasureWhenAllLooted && Game1.activeClickableMenu is ItemGrabMenu menu)
             {
                 InventoryAutomation.TryCloseItemGrabMenu(menu);
@@ -88,15 +88,7 @@ namespace JoysOfEfficiency.EventHandler
                     AutoFisher.AutoReelRod();
                 }
 
-                // Balanced mode tries to keep JoE actions to once every 1.0 second
-                _ticks = (_ticks + 1) % 6;
-                if (Conf.BalancedMode && _ticks != 0)
-                {
-                    return;
-                }
-
-
-                FarmCleaner.OnSixthUpdate();
+                FarmCleaner.OnNthTickUpdate();
                 if (Conf.UnifyFlowerColors)
                 {
                     FlowerColorUnifier.UnifyFlowerColors();

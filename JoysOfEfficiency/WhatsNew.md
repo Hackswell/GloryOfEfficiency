@@ -10,6 +10,7 @@ This is a changelog from 1.5.0
 - Added new config item "MachineTypes" in config.json.  [Hackswell]
   - All machines are enumerated by default now, and up to date as of SdV 1.6.4.
   - If a new machine is added to SdV, you can manually add the name to the list. No need to recompile JoE!
+- Added new config item "RunEveryNthTick".  If BalancedMode is FALSE, then run the JoE loops every "RunEveryNthTick"/60.0 seconds.
 - Updated some of the Fishing HUDs and probability code. [Sandman534]
   - New config items:
     - FishingTackleInfo: true / FALSE [default]

@@ -85,6 +85,7 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Balanced Mode"));
                 tab.AddOptionsElement(new ModifiedCheckBox("BalancedMode", 20, Config.BalancedMode, OnCheckboxValueChanged));
+                tab.AddOptionsElement(new ModifiedSlider("EveryNthTick", 20, (int)Config.RunEveryNthTick, 5, 60, OnSliderValueChanged, () => Config.BalancedMode));
 
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Auto Water Nearby Crops"));
@@ -162,7 +163,6 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new LabelComponent("Auto Loot Treasures"));
                 tab.AddOptionsElement(new ModifiedCheckBox("AutoLootTreasures", 30, Config.AutoLootTreasures, OnCheckboxValueChanged));
                 tab.AddOptionsElement(new ModifiedCheckBox("CloseTreasureWhenAllLooted", 31, Config.CloseTreasureWhenAllLooted, OnCheckboxValueChanged));
-
 
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Auto Pick Up Trash"));
@@ -404,6 +404,7 @@ namespace JoysOfEfficiency.Menus
                 case 17: Config.ThrowPower = value / 10.0f; break;
                 case 18: Config.ThresholdStaminaPercentage = value; break;
                 case 19: Config.ProbBoxMaxFish = value; break;
+                case 20: Config.RunEveryNthTick = (uint)value; break;
                 default: return;
             }
 
