@@ -81,7 +81,7 @@ namespace JoysOfEfficiency.Core
         public bool AutoHarvest { get; set; } = true;
         public int AutoHarvestRadius { get; set; } = 1;
         public bool ProtectNectarProducingFlower { get; set; } = true;
-        public List<string> HarvestException { get; set; } = new List<string>();
+        public HashSet<string> HarvestException { get; set; } = new HashSet<string>();
         public SButton ButtonToggleBlackList { get; set; } = Keys.F2.ToSButton();
 
         public bool AutoDestroyDeadCrops { get; set; } = true;
@@ -104,7 +104,7 @@ namespace JoysOfEfficiency.Core
         public bool AutoPullMachineResult { get; set; } = true;
         public int MachineRadius { get; set; } = 1;
 
-        public List<String> MachineTypes { get; set; } = new List<String>()
+        public HashSet<String> MachineTypes { get; set; } = new HashSet<String>()
         {
             "Anvil",
             "Bait Maker",

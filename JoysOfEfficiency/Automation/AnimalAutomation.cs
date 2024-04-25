@@ -146,7 +146,7 @@ namespace JoysOfEfficiency.Automation
 
                 if (!player.addItemToInventoryBool(
                     new StardewValley.Object(animal.currentProduce.Value,
-                        1,
+                        animal.hasEatenAnimalCracker.Value ? 2 : 1,
                         false,
                         -1,
                         animal.produceQuality.Value)))

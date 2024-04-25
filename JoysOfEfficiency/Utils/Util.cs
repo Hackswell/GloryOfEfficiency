@@ -154,9 +154,10 @@ namespace JoysOfEfficiency.Utils
 
         public static List<T> GetObjectsWithin<T>(int radius, bool ignoreBalancedMode = false) where T : SVObject
         {
+            List<T> list = new List<T>();
             if (!Context.IsWorldReady || currentLocation?.Objects == null)
             {
-                return new List<T>();
+                return list;
             }
             if (InstanceHolder.Config.BalancedMode && !ignoreBalancedMode)
             {
@@ -165,16 +166,12 @@ namespace JoysOfEfficiency.Utils
 
             GameLocation location = player.currentLocation;
             Vector2 ov = player.Tile;
-            List<T> list = new List<T>();
             for (int dx = -radius; dx <= radius; dx++)
             {
                 for (int dy = -radius; dy <= radius; dy++)
                 {
-                    Vector2 loc = ov + new Vector2(dx, dy);
-                    if (location.Objects.ContainsKey(loc) && location.Objects[loc] is T t)
-                    {
-                        list.Add(t);
-                    }
+                    location.Objects.TryGetValue(ov + new Vector2(dx, dy), out Object obj);
+                    if (obj is T t) list.Add(t);
                 }
             }
             return list;
