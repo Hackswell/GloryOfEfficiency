@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Characters;
+using StardewValley.Extensions;
 using StardewValley.Tools;
 
 namespace JoysOfEfficiency.Automation
@@ -189,13 +190,13 @@ namespace JoysOfEfficiency.Automation
             {
                 case Farm farm:
                 {
-                    list.IntersectWith(farm.animals.Values);
+                    list.AddRange(farm.animals.Values);
                     break;
                 }
 
                 case AnimalHouse house:
                 {
-                    list.IntersectWith(house.animals.Values);
+                    list.AddRange(house.animals.Values);
                     break;
                 }
             }
