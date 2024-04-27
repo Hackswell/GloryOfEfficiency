@@ -239,9 +239,18 @@ This utility let you know what fish could be caught (and estimated probability o
 
 **[CONFIG]**
 - FishingProbabilitiesInfo("UIs", bool, default:false) - whether this utility is enabled.
+- ProbBoxMaxFish("UIs", int, default:10 min:5 max:25) - How many fish to show per column.
 - ProbBoxCoordinates("UIs", Point, default:[100,400]) - Top-left coordinates of the window.
 - MorePreciseProbabilities("UIs", bool, default:true) - Displays more plactical and precise probabiilities.
 - TrialOfExamine("UIs", int, default:10 min:1 max:50) - Trial number of computing probabilities.
+
+## Fishing Tackle Info
+This utility lets you know what type of bait and bobber you have equipped, and how many uses you have left.
+
+**[CONFIG]**
+- FishingTackleInfo("UIs", bool, default:false) - whether this utility is enabled.
+- TackleBoxAttach("UIs", bool, default:false) - Attaches the tackle info window to fishing probabilites.
+- TackleBoxCoordinates("UIs", Point, default:[40,500]) - Top-left coordinates of the window.
 
 
 ## Show Shipping Price
