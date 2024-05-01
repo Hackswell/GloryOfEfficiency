@@ -125,6 +125,10 @@ namespace JoysOfEfficiency.EventHandler
                 {
                     HarvestAutomation.HarvestNearbyCrops(player);
                 }
+                if (Conf.AutoHarvestSlimeBalls)
+                {
+                    HarvestAutomation.HarvestNearbySlimeBalls(player);
+                }
                 if (Conf.AutoDestroyDeadCrops)
                 {
                     HarvestAutomation.DestroyNearDeadCrops(player);

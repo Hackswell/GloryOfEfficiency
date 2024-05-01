@@ -79,6 +79,7 @@ namespace JoysOfEfficiency.Core
 
 
         public bool AutoHarvest { get; set; } = true;
+        public bool AutoHarvestSlimeBalls { get; set; } = true;
         public int AutoHarvestRadius { get; set; } = 1;
         public bool ProtectNectarProducingFlower { get; set; } = true;
         public HashSet<string> HarvestException { get; set; } = new HashSet<string>();
