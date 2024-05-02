@@ -93,6 +93,16 @@ namespace JoysOfEfficiency.Automation
             }
         }
 
+        public static void HarvestNearbySlimeBalls(Farmer player)
+        {
+            int radius = Config.AutoHarvestRadius;
+
+            foreach (SVObject obj in Util.GetObjectsWithin<SVObject>(radius).Where(obj => obj.QualifiedItemId == "(BC)56"))
+            {
+                obj.checkForAction(player);
+            }
+        }
+
         public static void WaterNearbyCrops()
         {
             WateringCan can = Util.FindToolFromInventory<WateringCan>(Game1.player, InstanceHolder.Config.FindCanFromInventory);
