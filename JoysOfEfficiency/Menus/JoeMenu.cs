@@ -167,6 +167,7 @@ namespace JoysOfEfficiency.Menus
                 tab.AddOptionsElement(new EmptyLabel());
                 tab.AddOptionsElement(new LabelComponent("Auto Pick Up Trash"));
                 tab.AddOptionsElement(new ModifiedCheckBox("AutoPickUpTrash", 34, Config.AutoPickUpTrash, OnCheckboxValueChanged));
+                tab.AddOptionsElement(new ModifiedCheckBox("GarbageDisgustsNPCs", 46, Config.GarbageDisgustsNPCs, OnCheckboxValueChanged));
                 tab.AddOptionsElement(new ModifiedSlider("ScavengingRadius", 13, Config.ScavengingRadius, 1, 3, OnSliderValueChanged, () => !Config.AutoPickUpTrash || Config.BalancedMode));
 
                 tab.AddOptionsElement(new EmptyLabel());
@@ -378,6 +379,7 @@ namespace JoysOfEfficiency.Menus
                 case 43: Config.FishingTackleInfo = value; break;
                 case 44: Config.TackleBoxAttach = value; break;
                 case 45: Config.DontEatThat = value; break;
+                case 46: Config.GarbageDisgustsNPCs = value; break;
                 default: return;
             }
             InstanceHolder.WriteConfig();

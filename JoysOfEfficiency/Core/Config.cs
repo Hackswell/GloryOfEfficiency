@@ -175,6 +175,7 @@ namespace JoysOfEfficiency.Core
         public int PauseNotificationY { get; set; } = 700;
 
         public bool AutoPickUpTrash { get; set; } = false;
+        public bool GarbageDisgustsNPCs { get; set; } = true;
         public int ScavengingRadius { get; set; } = 2;
 
         public bool AutoShearingAndMilking { get; set; } = true;

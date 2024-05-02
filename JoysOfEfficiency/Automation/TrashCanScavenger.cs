@@ -8,6 +8,8 @@ namespace JoysOfEfficiency.Automation
 {
     internal class TrashCanScavenger
     {
+        private static Config Config => InstanceHolder.Config;
+
         public static void ScavengeTrashCan()
         {
             if (!(Game1.currentLocation is Town town))
@@ -30,7 +32,7 @@ namespace JoysOfEfficiency.Automation
                     if (layer.Tiles[x, y]?.TileIndex == 78)
                     {
                         string whichGarbage = Game1.currentLocation.doesTileHaveProperty(x, y, "Action", "Buildings");
-                        town.CheckGarbage(whichGarbage, new Vector2(x, y), Game1.player, true, true);
+                        town.CheckGarbage(whichGarbage, new Vector2(x, y), Game1.player, true, Config.GarbageDisgustsNPCs);
                     }
                 }
             }
