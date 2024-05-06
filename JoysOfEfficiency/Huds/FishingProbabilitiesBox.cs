@@ -1,36 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Linq;
-using System.Text.RegularExpressions;
 using JoysOfEfficiency.Core;
-using JoysOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using StardewValley.GameData.LocationContexts;
+using StardewValley.GameData;
 using StardewValley.GameData.Locations;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Tools;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using xTile.Dimensions;
 using Game1 = StardewValley.Game1;
 using Object = StardewValley.Object;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using System.Net.Mail;
-using static System.Net.Mime.MediaTypeNames;
-using System.Xml;
-using StardewValley.Buildings;
-using Microsoft.VisualBasic;
 
 namespace JoysOfEfficiency.Huds
 {
     public class FishingProbabilitiesBox
     {
-        private static readonly Logger Logger = new Logger("FishingProbabilitiesInfo");
-
-        private static Dictionary<String, double> _fishingDictionary;
-        private static Dictionary<String, int> _attachmentDictionary;
+        private static Dictionary<string, double> _fishingDictionary;
+        private static Dictionary<string, int> _attachmentDictionary;
 
         private static bool _isFirstTimeOfFishing = true;
 
@@ -43,18 +34,25 @@ namespace JoysOfEfficiency.Huds
                     // Only run the probablies once when line is cast
                     _isFirstTimeOfFishing = false;
 
-                    // Get water depth
+                    // Game Location
                     GameLocation location = Game1.currentLocation;
-                    Rectangle rectangle = new Rectangle(location.fishSplashPoint.X * 64, location.fishSplashPoint.Y * 64, 64, 64);
-                    Rectangle value = new Rectangle((int)rod.bobber.X - 80, (int)rod.bobber.Y - 80, 64, 64);
+
+                    // Water Depth
+                    Rectangle rectangle = new(location.fishSplashPoint.X * 64, location.fishSplashPoint.Y * 64, 64, 64);
+                    Rectangle value = new((int)rod.bobber.X - 80, (int)rod.bobber.Y - 80, 64, 64);
                     bool flag = rectangle.Intersects(value);
                     int clearWaterDistance = rod.clearWaterDistance;
 
-                    // Populate dictionaries
-                    _fishingDictionary = GetFishes(location, rod.HasMagicBait() ,rod.attachments[0]?.ParentSheetIndex ?? -1, clearWaterDistance + (flag ? 1 : 0), Game1.player, InstanceHolder.Config.MorePreciseProbabilities ? InstanceHolder.Config.TrialOfExamine : 1);
+                    // Bobber Location
+                    Vector2 vector = new(rod.bobber.X / 64f, rod.bobber.Y / 64f);
+
+                    // Populate Fish and Tackle
+                    _fishingDictionary = GetFishes(location, vector, clearWaterDistance + (flag ? 1 : 0), Game1.player, rod, InstanceHolder.Config.MorePreciseProbabilities ? InstanceHolder.Config.TrialOfExamine : 1);
                     _attachmentDictionary = GetAttachments(rod);
                 }
             }
+
+            // Clear out lists when not fishing
             else
             {
                 _isFirstTimeOfFishing = true;
@@ -65,316 +63,376 @@ namespace JoysOfEfficiency.Huds
 
         public static void PrintFishingInfo()
         {
+            // Draw Fishing Window
             int x_pos_add = 0;
             if (InstanceHolder.Config.FishingProbabilitiesInfo && _fishingDictionary != null)
                 x_pos_add = DrawProbBox(_fishingDictionary);
 
+            // Draw Tackle Window
             if (InstanceHolder.Config.FishingTackleInfo && _attachmentDictionary != null && _attachmentDictionary.Count > 0)
                 DrawTackleBox(_attachmentDictionary, x_pos_add);
-
         }
 
-        private static Dictionary<String, int> GetAttachments(FishingRod rod)
+        private static Dictionary<string, int> GetAttachments(FishingRod rod)
         {
-            Dictionary<String, int> dictList = new Dictionary<String, int>();
+            Dictionary<string, int> dictList = new();
 
-            // If no attachments, return null set
-            if (rod.attachments.Count == 0) return null;
+            // Get Bait and Tackle from Rod
+            Object baitObject = rod.GetBait();
+            List<Object> tackleObjects = rod.GetTackle();
 
-            // Loop through attachments
-            for (int i = 0; i < rod.attachments.Count; i++)
-            {
-                int rodIndex = rod.attachments[i]?.ParentSheetIndex ?? -1;
-                if (rodIndex > -1)
-                {
-                    // Bait vs Tackle
-                    if (i == 0)
-                        dictList[rod.attachments[i].QualifiedItemId] = rod.attachments[i].Stack;
-                    else
-                        dictList[rod.attachments[i].QualifiedItemId] = FishingRod.maxTackleUses - rod.attachments[i].uses.Value;
-                }
-            }
+            // Add Bait
+            if (baitObject != null)
+                dictList[baitObject.QualifiedItemId] = baitObject.Stack;
+
+            // Add Tackle
+            foreach (Object tackle in tackleObjects)
+                if (tackle != null)
+                    dictList[tackle.QualifiedItemId] = FishingRod.maxTackleUses - tackle.uses.Value;
 
             return dictList;
         }
 
-        private static Dictionary<String, double> GetFishes(GameLocation location, bool magicBait, int bait, int waterDepth, Farmer who, int trial = 1)
+        private static Dictionary<string, double> GetFishes(GameLocation location, Vector2 bobbleTile, int waterDepth, Farmer player, FishingRod rod, int trial = 1)
         {
-            List<Dictionary<String, double>> dictList = new List<Dictionary<String, double>>();
+            // Run X amount of trials and get the results
+            List<Dictionary<string, double>> dictList = new();
             for (int i = 0; i < trial; i++)
             {
-                switch (location)
-                {
-                    case Farm _:
-                        dictList.Add(GetFishesFarm(waterDepth, who, magicBait));
-                        break;
-                    case MineShaft shaft:
-                        dictList.Add(GetFishesMine(shaft, magicBait, bait, waterDepth, who));
-                        break;
-                    case Submarine _:
-                        dictList.Add(GetFishesSubmarine());
-                        break;
-                    default:
-                        dictList.Add(GetFishesGeneric(waterDepth, who, magicBait));
-                        break;
-                }
+                // Mineshaft have to be handled slightly differently
+                if (location is MineShaft)
+                    dictList.Add(GetFishesMine((MineShaft)location, bobbleTile, waterDepth, player, rod));
+                else
+                    dictList.Add(GetFishesGeneric(bobbleTile, waterDepth, player, rod));
             }
 
-            Dictionary<String, double> dict = ShuffleAndAverageFishingDictionary(dictList);
-            Dictionary<String, double> dict2 = dict.OrderByDescending(x => x.Value).Where(kv => !IsGarbage(kv.Key)).ToDictionary(x => x.Key, x => x.Value);
-            double sum = dict2.Sum(kv => kv.Value);
-            if (1 - sum >= 0.0001)
-                dict2.Add("168", 1 - sum);
-            
-            return dict2;
+            // Shuffle and get a list of valid items
+            Dictionary<string, double> shuffledDict = ShuffleAndAverageFishingDictionary(dictList);
+            Dictionary<string, double> fishDict = shuffledDict.OrderByDescending(x => x.Value).Where(kv => !IsGarbage(kv.Key)).ToDictionary(x => x.Key, x => x.Value);
+
+            // Add in sum of Garbage items if they have a probability
+            Dictionary<string, double> garbageDict = shuffledDict.OrderByDescending(x => x.Value).Where(kv => IsGarbage(kv.Key)).ToDictionary(x => x.Key, x => x.Value);
+            double garbageSum = garbageDict.Sum(kv => kv.Value);
+            if (garbageSum > 0.0001)
+                fishDict.Add("(O)168", garbageSum);
+
+            // Get probability to 100%
+            double totalSum = fishDict.Sum(kv => kv.Value);
+            Dictionary<string, double> finalDict = fishDict.ToDictionary(x => x.Key, x => x.Value / totalSum);
+
+            return finalDict;
         }
 
-        private static Dictionary<String, double> GetFishesGeneric(int waterDepth, Farmer who, bool magicBait, string locationName = null)
-        {
-            Dictionary<String, double> dictFish = new Dictionary<String, double>();
-            GameLocation currLocation = Game1.currentLocation;
-            Season season = Game1.GetSeasonForLocation(currLocation);
-
-            // Load all Fish and Locations
-            Dictionary<string, string> allFishData = DataLoader.Fish(Game1.content);
-            Dictionary<string, LocationData> dictionary = DataLoader.Locations(Game1.content);
-
-            // Get Location Data
-            LocationData thisLocData = Game1.currentLocation.GetData();
-            string locName = locationName ?? currLocation.Name;
-            Logger.Log($"GetFishes: Loc: {locName} ** Season: {season}");
-
-            // If the Henchman is gone, and the user has no void mayo, 25% chance to fish it up
-            if (locName.Equals("WitchSwamp") && !Game1.MasterPlayer.mailReceived.Contains("henchmanGone") && !Game1.player.Items.ContainsId("Void Mayonnaise", 1))
-                return new Dictionary<String, double> { { "308", 0.25 } };
-
-            // Show all available fishes
-            if (Game1.debugMode)
-            {
-                String JSONFishes = JsonSerializer.Serialize(allFishData, new JsonSerializerOptions { WriteIndented = true });
-                Logger.Info($"All Fishes: {JSONFishes}");
-            }
-            
-            // Get all possible fish in the area
-            IEnumerable<SpawnFishData> possibleFish = dictionary["Default"].Fish;
-            if (thisLocData != null && thisLocData.Fish?.Count > 0)
-                possibleFish = possibleFish.Concat(thisLocData.Fish);
-
-            // Debug Location Data
-            if (Game1.debugMode) {
-                Logger.Info($"Finding fish area for farmer: {who.Tile.X},{who.Tile.Y} ** {currLocation.locationContextId} ** ");
-                LocationContextData bubba = currLocation.GetLocationContext();
-                String jsonBubba = JsonSerializer.Serialize(bubba, new JsonSerializerOptions { WriteIndented = true });
-                Logger.Info($"GameLocationContext: {jsonBubba}");
-            }
-
-            // Get all fish for the current location
-            currLocation.TryGetFishAreaForTile(who.Tile, out var fishAreaID, out var fishAreaData);
-            if (Game1.debugMode)
-            {
-                String jsonFishAreaData = JsonSerializer.Serialize(fishAreaData, new JsonSerializerOptions { WriteIndented = true });
-                Logger.Info($"FishAreaData: {jsonFishAreaData}");
-            }
-
-            // If we are using magic bait, include all seasons
-            if (magicBait)
-                possibleFish = from p in possibleFish
-                               orderby p.Precedence, Game1.random.Next()
-                               where (p.FishAreaId == fishAreaID || p.FishAreaId == null)
-                               select p;
-            else
-                possibleFish = from p in possibleFish
-                               orderby p.Precedence, Game1.random.Next()
-                               where (p.FishAreaId == fishAreaID || p.FishAreaId == null) && (p.Season == season || p.Season == null)
-                               select p;
-
-            // Show all possible fish
-            if (Game1.debugMode)
-            {
-                String JSON = JsonSerializer.Serialize(possibleFish, new JsonSerializerOptions { WriteIndented = true });
-                Logger.Info($"Possibru Fishu:\n{JSON}");
-            }
-            // Reference: https://stardewvalleywiki.com/Modding:Fish_data#Fish_data_and_spawn_criteria
-            //              0          1   2      3  4    5            6                   7     8           9  10 11 12  13
-            //  "143": "Catfish/       75/mixed/ 12/72/600 2400/spring fall winter/      rainy/689 .4 680 .1/4/.40/.1/0/true",
-            //  "800": "Blobfish/      75/floater/8/25/600 2600/spring summer fall winter/both/685 .35/      3/.40/.1/0/false"
-            //  "701": "Tilapia/       50/mixed/ 11/30/600 1400/summer fall/              both/683 .35/      3/.4/.2/0/false",
-            //  "838": "Blue Discus/   60/dart/   2/ 9/600 2600/spring summer fall winter/both/685 .35/      1/.25/.1/0/false",
-            //  "162": "Lava Eel/      90/mixed/ 32/32/600 2600/spring summer fall winter/both/684 .1/       2/.05/.1/7/false",
-
-            /* 0   Name
-               5   startTime  endTime
-               6   season1 season2 ...
-               7   rainy|sunny|both
-               9   maxDepth
-               10  spawnMultiplier
-               11  depthMultiplier
-               12  fishingLevel            */
-
-            double chance = 0.0d;
-            foreach (SpawnFishData f in possibleFish)
-            {
-                // Use ItemId unless its null. Account for mods with non-standard IDs for vanilla records
-                String id = f.ItemId ?? f.Id;
-                String qualifiedID = id;
-                id = Regex.Replace(id, "\\(O\\)", "");
-
-                // Debug
-                if (Game1.debugMode) Logger.Info($"Testing Fish ID: {id}");
-
-                // Skip Garbage, Furniture and items that dont exist
-                if (id.Contains('|') || id.Contains("(F)") || !ItemRegistry.Exists(id)) continue;
-
-                // Remove season check when using magic bait
-                String newCondition = f.Condition;
-                if (magicBait && f.Condition != null)
-                {
-                    List<string> conditions = f.Condition.Split(',').ToList();
-                    conditions.RemoveAll(u => u.ToUpper().Contains("LOCATION_SEASON"));
-                    newCondition = String.Join(",", conditions);
-                } 
-                if (!GameStateQuery.CheckConditions(newCondition)) continue;
-
-                // If it's not found in the allFishData, assign the chance from possibleFish instead
-                if (!allFishData.ContainsKey(id))
-                {
-                    if (Game1.debugMode) Logger.Info($"\tdictFish: Adding {id} :: {f.Chance}");
-                    dictFish[qualifiedID] = f.Chance;
-                    continue;
-                }
-                
-                // Get the data for the fish
-                String[] fishData = allFishData[id].Split('/');
-
-                // Debug code for fish data
-                if (Game1.debugMode)
-                {
-                    Logger.Info($"Parsing through allFishData for {f.Id} now...");
-                    String jFishData = JsonSerializer.Serialize(fishData, new JsonSerializerOptions{WriteIndented = true});
-                    Logger.Info($"\tID: {id} *** {jFishData}");
-                }
-
-                // Check the time window of the fish
-                String[] catchTimes = fishData[5].Split(' ');
-                if (!magicBait && (Game1.timeOfDay < Convert.ToInt32(catchTimes[0]) || Game1.timeOfDay >= Convert.ToInt32(catchTimes[1]))) continue;
-
-                // Make sure weather matches the fish pool.  [Hackswell: pun intended]
-                if (!fishData[7].Equals("both") && !magicBait)
-                {
-                    if (fishData[7].Equals("rainy") && !Game1.isRaining) continue;
-                    else if (fishData[7].Equals("sunny") && Game1.isRaining) continue;
-                }
-
-                // Below the required level
-                if (who.FishingLevel < Convert.ToInt32(fishData[12])) continue;
-
-                // Calculate chance
-                int maxDepth = Convert.ToInt32(fishData[9]);
-                double spawnMultiplier = Convert.ToDouble(fishData[10]);
-                double depthMultiplier = Convert.ToDouble(fishData[11]) * spawnMultiplier;
-                spawnMultiplier -= Math.Max(0, maxDepth - waterDepth) * depthMultiplier;
-                spawnMultiplier += who.FishingLevel / 50f;
-                chance = Math.Min(spawnMultiplier, 0.89999997615814209);
-
-                if (Game1.debugMode) Logger.Info($"dictFish: Adding {id} :: {chance}");
-                dictFish[qualifiedID] = chance;
-            }
-
-            // Return fish list
-            if (Game1.debugMode)
-            {
-                String jDictFish = JsonSerializer.Serialize(dictFish, new JsonSerializerOptions { WriteIndented = true });
-                Logger.Info($"Possible Fish:\n{jDictFish}");
-            }
-            return dictFish;
-        }
-
-        private static Dictionary<String, double> GetFishesSubmarine()
-        {
-            return new Dictionary<String, double>
-            {
-                { "800", 0.1 },
-                { "799", 0.18 },
-                { "798", 0.28 },
-                { "154", 0.1 },
-                { "155", 0.08 },
-                { "149", 0.05 },
-                { "797", 0.01 }
-            };
-        }
-
-        private static Dictionary<String, double> GetFishesMine(MineShaft shaft, bool magicBait, int bait, int waterDepth, Farmer who)
+        private static Dictionary<string, double> GetFishesMine(MineShaft shaft, Vector2 bobbleTile, int waterDepth, Farmer player, FishingRod rod)
         {
             Dictionary<String, double> dict = new Dictionary<String, double>();
-            double num2 = 1.0;
-            num2 += 0.4 * who.FishingLevel;
-            num2 += waterDepth * 0.1;
             double p;
-            int level = shaft.getMineArea();
 
-            // Add fish based on mine level
+            // If player is using training rod in mines, return trash
+            if (rod.QualifiedItemId.Contains("TrainingRod"))
+            {
+                dict["(O)167"] = 1;
+                return dict;
+            }
+
+            // Setup initial chance
+            double num = 1.0;
+            num += 0.4 * player.FishingLevel;
+            num += waterDepth * 0.1;
+
+            // Lure Check
+            if (rod.HasCuriosityLure())
+                num += 5.0;
+
+            // Target Bait Check
+            string textTarget = rod.GetBait()?.Name ?? "";
+
+            // Add specific fish based on mine level
+            int level = shaft.getMineArea();
             switch (level)
             {
                 case 0:
                 case 10:
-                    num2 += bait == 689 ? 3 : 0;
-                    p = 0.02 + 0.01 * num2;
-                    dict.Add("158", p);             // Stonefish
+                    num += textTarget.Contains("Stonefish") ? 10 : 0;
+                    p = 0.02 + 0.01 * num;
+                    dict.Add("(O)158", p);
                     break;
                 case 40:
-                    num2 += bait == 682 ? 3 : 0;
-                    p = 0.015 + 0.009 * num2;
-                    dict.Add("161", p);             // Ice Pip
+                    num += textTarget.Contains("Ice Pip") ? 10 : 0;
+                    p = 0.015 + 0.009 * num;
+                    dict.Add("(O)161", p);
                     break;
                 case 80:
-                    num2 += bait == 684 ? 3 : 0;
-                    p = 0.01 + 0.008 * num2;
-                    dict.Add("162", p);             // Lava Eel
+                    num += textTarget.Contains("Lava Eel") ? 10 : 0;
+                    p = 0.01 + 0.008 * num;
+                    dict.Add("(O)162", p);
                     break;
                 default:
                     return dict;
             }
 
+            // Get general fish data on level 10/40, and add Cave Jelly to level 80
             if (level == 10 || level == 40)
-                return ConcatDictionary(dict,MagnifyProbabilities(GetFishesGeneric(waterDepth, who, magicBait, "UndergroundMine").Where(kv => !IsGarbage(kv.Key)).ToDictionary(x => x.Key, x => x.Value),1 - p));
+                return ConcatDictionary(dict, GetFishesGeneric(bobbleTile, waterDepth, player, rod, "UndergroundMine"));
+            else if (level == 80)
+            {
+                p = 0.05 + player.LuckLevel * 0.05;
+                dict.Add("(O)CaveJelly", p);
+            }
 
             return dict;
         }
 
-        private static Dictionary<String, double> GetFishesFarm(int waterDepth, Farmer who, bool magicBait)
+        private static Dictionary<string, double> GetFishesGeneric(Vector2 bobberTile, int waterDepth, Farmer player, FishingRod rod, string locationName = null)
         {
-            switch (Game1.whichFarm)
+            Dictionary<string, double> dictFish = new();
+
+            // GameData
+            GameLocation location = Game1.currentLocation;
+            Dictionary<string, LocationData> dictionary = DataLoader.Locations(Game1.content);
+            LocationData locationData = ((location != null) ? location.GetData() : GameLocation.GetData(locationName));
+            Dictionary<string, string> allFishData = DataLoader.Fish(Game1.content);
+            Season seasonForLocation = Game1.GetSeasonForLocation(location);
+
+            // Get Fish Area for Tile
+            if (location == null || !location.TryGetFishAreaForTile(bobberTile, out var id, out var _))
+                id = null;
+
+            // Magic Bait
+            bool flagMagicBait = false; // flag
+            bool hasCuriosityLure = false;
+            string textTarget = null;
+            flagMagicBait = rod.HasMagicBait();
+
+            // Curiosity Lure
+            hasCuriosityLure = rod.HasCuriosityLure();
+
+            // Targeted Bait
+            StardewValley.Object bait = rod.GetBait();
+            if (bait?.QualifiedItemId == "(O)SpecificBait" && bait.preservedParentSheetIndex.Value != null)
+                textTarget = "(O)" + bait.preservedParentSheetIndex.Value;
+
+            // Keys
+            HashSet<string> ignoreQueryKeys = (flagMagicBait ? GameStateQuery.MagicBaitIgnoreQueryKeys : null);
+            Point tilePoint = player.TilePoint;
+
+            // Fish Data
+            IEnumerable<SpawnFishData> enumerable = dictionary["Default"].Fish;
+            if (locationData != null && locationData.Fish?.Count > 0)
+                enumerable = enumerable.Concat(locationData.Fish);
+
+            // Add Inherited Locations if found in spawn data
+            IEnumerable<SpawnFishData> inherited = enumerable.Where(x => x.Id.Contains("LOCATION_FISH"));
+            foreach (SpawnFishData spawn in inherited)
             {
-                case 1:
-                    return ConcatDictionary(MagnifyProbabilities(GetFishesGeneric(waterDepth, who, magicBait, "Forest"), 0.3), MagnifyProbabilities(GetFishesGeneric(waterDepth, who, magicBait, "Town"), 0.7));
-                case 3:
-                    return MagnifyProbabilities(GetFishesGeneric(waterDepth, who, magicBait, "Forest"), 0.5);
-                case 2:
-                    {
-                        double p = 0.05 + Game1.player.DailyLuck;
-                        return ConcatDictionary(
-                            new Dictionary<String, double> { { "734", p } },
-                            MagnifyProbabilities(
-                                GetFishesGeneric(waterDepth, who, magicBait, "Forest"),
-                                (1 - p) * 0.45)
-                            );
-                    }
-                case 4:
-                    {
-                        return MagnifyProbabilities(
-                            GetFishesGeneric(waterDepth, who, magicBait, "Mountain"),
-                            0.35);
-                    }
-                default:
-                    return GetFishesGeneric(waterDepth, who, magicBait);
+                string[] inheritedLocation = spawn.Id.Split(' ');
+                enumerable = enumerable.Concat(dictionary[inheritedLocation[1]].Fish.Where(x => x.CanBeInherited));
             }
+
+            // Gather all fish and order them by presidence
+            enumerable = from p in enumerable
+                         orderby p.Precedence, Game1.random.Next()
+                         select p;
+
+            // Loop through spawn data
+            foreach (SpawnFishData spawn in enumerable)
+            {
+                string fishIDQualified = spawn.ItemId ?? spawn.Id;
+                string fishID = Regex.Replace(fishIDQualified, "\\(O\\)", "");
+
+                // If we get multiple options, select the first
+                if (fishIDQualified.Contains('|'))
+                {
+                    fishIDQualified = fishIDQualified.Split('|')[0];
+                    fishID = Regex.Replace(fishIDQualified, "\\(O\\)", "");
+                }
+
+                // Secret Notes / Inherited Fish Types
+                if (fishIDQualified.Contains("SECRET_NOTE_OR_ITEM") || fishIDQualified.Contains("LOCATION_FISH")) continue;
+
+                // Not the correct area or season
+                if ((spawn.FishAreaId != null && id != spawn.FishAreaId) || (spawn.Season.HasValue && !flagMagicBait) && spawn.Season != seasonForLocation)
+                    continue;
+
+                // Player Position
+                Rectangle? playerPosition = spawn.PlayerPosition;
+                if (playerPosition.HasValue && !playerPosition.GetValueOrDefault().Contains(tilePoint.X, tilePoint.Y))
+                    continue;
+
+                // Bobber Position
+                playerPosition = spawn.BobberPosition;
+                if ((playerPosition.HasValue && !playerPosition.GetValueOrDefault().Contains((int)bobberTile.X, (int)bobberTile.Y)) || player.FishingLevel < spawn.MinFishingLevel || waterDepth < spawn.MinDistanceFromShore || (spawn.MaxDistanceFromShore > -1 && waterDepth > spawn.MaxDistanceFromShore) || (spawn.RequireMagicBait && !flagMagicBait))
+                    continue;
+
+                // Spawn Conditions
+                if (spawn.Condition != null && !GameStateQuery.CheckConditions(spawn.Condition, location, null, null, null, null, ignoreQueryKeys))
+                    continue;
+
+                // We have caught the limit of the fish
+                if (spawn.CatchLimit > 0 && !player.fishCaught.TryGetValue(fishIDQualified, out var value2) && value2[0] >= spawn.CatchLimit)
+                    continue;
+
+                // If fish it not actually a fish
+                if (!allFishData.TryGetValue(fishID, out var fishArray))
+                {
+                    float chance = spawn.GetChance(hasCuriosityLure, player.DailyLuck, player.LuckLevel, (float value, IList<QuantityModifier> modifiers, QuantityModifier.QuantityModifierMode mode) => Utility.ApplyQuantityModifiers(value, modifiers, mode, location), spawn.ItemId == textTarget);
+                    chance = Math.Min(chance, 1f);
+                    dictFish[fishIDQualified] = chance;
+
+                    // If this item has a 100% chance, we stop
+                    if (chance >= 1f)
+                        break;
+                    else
+                        continue;
+                }
+
+                // Split Fish Data to Array
+                string[] fishData = fishArray.Split('/');
+
+                // Training Rod Check
+                bool flagTrainingRod = rod.QualifiedItemId == "(T)TrainingRod";
+                if (flagTrainingRod)
+                {
+                    bool? canUseTrainingRod = spawn.CanUseTrainingRod;
+                    if (canUseTrainingRod.HasValue)
+                    {
+                        if (!canUseTrainingRod.GetValueOrDefault())
+                            continue;
+                        else if (ArgUtility.TryGetInt(fishData, 1, out var value, out var error) && value >= 50)
+                            continue;
+                    }
+                }
+
+                // If we do not ingore requirements, check and get spawn chance
+                if (!spawn.IgnoreFishDataRequirements)
+                {
+                    // Time and Weather Check if not using Magic Bait
+                    if (!flagMagicBait)
+                    {
+                        // Time of Day Check
+                        if (!ArgUtility.TryGet(fishData, 5, out var timeData, out var errorTime))
+                            continue;
+
+                        string[] timeArray = ArgUtility.SplitBySpace(timeData);
+                        bool flagTime = false;
+                        for (int i = 0; i < timeArray.Length; i += 2)
+                        {
+                            if (!ArgUtility.TryGetInt(timeArray, i, out var startTime, out errorTime) || !ArgUtility.TryGetInt(timeArray, i + 1, out var stopTime, out errorTime))
+                                continue;
+
+                            if (Game1.timeOfDay >= startTime && Game1.timeOfDay < stopTime)
+                                flagTime = true;
+                            break;
+                        }
+
+                        if (!flagTime)
+                            continue;
+
+                        // Weather Check
+                        if (!ArgUtility.TryGet(fishData, 7, out var value, out var errorWeather))
+                            continue;
+
+                        if (!value.Equals("both"))
+                        {
+                            if (value.Equals("sunny") && location.IsRainingHere())
+                                continue;
+                            if (value.Equals("rainy") && !location.IsRainingHere())
+                                continue;
+                        }
+                    }
+
+                    // Fishing Level Check
+                    if (ArgUtility.TryGetInt(fishData, 12, out var value8, out var error) && player.FishingLevel < value8)
+                        continue;
+
+                    // Max Depth, Spawn Chance, Spawn Depth Check
+                    if (!ArgUtility.TryGetInt(fishData, 9, out var maxDepth, out error) || !ArgUtility.TryGetFloat(fishData, 10, out var spawnMultiplier, out error) || !ArgUtility.TryGetFloat(fishData, 11, out var depthMultiplier, out error))
+                        continue;
+
+                    // Chance to Catch
+                    float num = depthMultiplier * spawnMultiplier;
+                    spawnMultiplier -= (float)Math.Max(0, maxDepth - waterDepth) * num;
+                    spawnMultiplier += (float)player.FishingLevel / 50f;
+                    if (flagTrainingRod)
+                        spawnMultiplier *= 1.1f;
+
+                    spawnMultiplier = Math.Min(spawnMultiplier, 0.9f);
+                    if ((double)spawnMultiplier < 0.25 && hasCuriosityLure)
+                        if (spawn.CuriosityLureBuff > -1f)
+                            spawnMultiplier += spawn.CuriosityLureBuff;
+                        else
+                        {
+                            float num2 = 0.25f;
+                            float num3 = 0.08f;
+                            spawnMultiplier = (num2 - num3) / num2 * spawnMultiplier + (num2 - num3) / 2f;
+                        }
+
+                    if (spawn.ItemId == textTarget)
+                        spawnMultiplier *= 1.66f;
+
+                    if (spawn.ApplyDailyLuck)
+                        spawnMultiplier += (float)player.DailyLuck;
+
+                    List<QuantityModifier> chanceModifiers = spawn.ChanceModifiers;
+                    if (chanceModifiers != null && chanceModifiers.Count > 0)
+                        spawnMultiplier = Utility.ApplyQuantityModifiers(spawnMultiplier, spawn.ChanceModifiers, spawn.ChanceModifierMode, location);
+
+                    // Only if fish has a chance to sapwn
+                    if (spawnMultiplier > 0)
+                    {
+                        spawnMultiplier = Math.Min(spawnMultiplier, 1f);
+                        dictFish[fishIDQualified] = spawnMultiplier;
+                    }
+
+                    // If this item has a 100% chance, we stop
+                    if (spawnMultiplier >= 1f)
+                        break;
+                }
+
+                // If we ignore requirements, get chance from spawn
+                else
+                {
+                    float chance = spawn.GetChance(hasCuriosityLure, player.DailyLuck, player.LuckLevel, (float value, IList<QuantityModifier> modifiers, QuantityModifier.QuantityModifierMode mode) => Utility.ApplyQuantityModifiers(value, modifiers, mode, location), spawn.ItemId == textTarget);
+                    chance = Math.Min(chance, 1f);
+                    dictFish[fishIDQualified] = chance;
+
+                    // If this item has a 100% chance, we stop
+                    if (chance >= 1f)
+                        break;
+                }
+            }
+
+            return dictFish;
         }
 
-        private static Dictionary<String, double> GetFinalProbabilities(Dictionary<String, double> dict)
+        private static bool IsGarbage(string item)
         {
-            Dictionary<String, double> result = new Dictionary<String, double>();
+            // Return false for any Non-Objects
+            if (!item.Contains("(O)"))
+                return false;
+
+            // Get object information
+            string itemID = Regex.Replace(item, "\\(O\\)", "");
+            var objectData = Game1.objectData[itemID];
+
+            // Fish items that are not fish
+            if (objectData != null && objectData.ContextTags.Contains("fish_nonfish") && !objectData.ContextTags.Contains("counts_as_fish_catch"))
+                return true;
+
+            // JoJa Garbage
+            if (item == "(O)167" || item == "(O)168" || item == "(O)169" || item == "(O)170" || item == "(O)171" || item == "(O)172")
+                return true;
+
+            return false;
+        }
+
+        private static Dictionary<string, double> GetFinalProbabilities(Dictionary<string, double> dict)
+        {
+            Dictionary<string, double> result = new();
             double ratio = 1.0;
-            foreach (KeyValuePair<String, double> kv in dict)
+
+            // Get the result of each fish while moving down from 100%
+            foreach (KeyValuePair<string, double> kv in dict)
             {
                 result.Add(kv.Key, kv.Value * ratio);
                 ratio *= (1 - kv.Value);
@@ -383,79 +441,76 @@ namespace JoysOfEfficiency.Huds
             return result;
         }
 
-        private static bool IsGarbage(String item)
+        private static Dictionary<string, double> ShuffleAndAverageFishingDictionary(IEnumerable<Dictionary<string, double>> list)
         {
-            try
-            {
-                // Account for qualified item names
-                int index = int.Parse(Regex.Replace(item, "\\(O\\)", ""));
-                if (index is >= 167 and <= 172) return true;
-                switch (index)
-                {
-                    case 152:
-                    case 153:
-                    case 157:
-                        return true;
-                }
-            }
-            catch { }
-
-            return false;
-        }
-
-        private static Dictionary<String, double> ShuffleAndAverageFishingDictionary(IEnumerable<Dictionary<String, double>> list)
-        {
-            List<Dictionary<String, double>> dicts = list.Select(dict => GetFinalProbabilities(ShuffleDictionary(dict))).ToList();
-
+            List<Dictionary<string, double>> dicts = list.Select(dict => GetFinalProbabilities(ShuffleDictionary(dict))).ToList();
             return AverageDictionary(dicts);
         }
 
-        private static Dictionary<String, double> ShuffleDictionary(Dictionary<String, double> dict)
+        private static Dictionary<string, double> ShuffleDictionary(Dictionary<string, double> dict)
         {
-            KeyValuePair<String, double>[] pairs = dict.ToArray();
+            // Get the last value of the dictionary if higher than 100%
+            double? probability = null;
+            string LastKey = "";
+            if (dict[dict.Keys.Last()] >= 1f)
+            {
+                LastKey = dict.Keys.Last();
+                dict.Remove(LastKey);
+
+                // Get the probabilities of the remaining fish
+                foreach (KeyValuePair<string, double> kv in dict)
+                    if (!probability.HasValue)
+                        probability = 1 - kv.Value;
+                    else
+                        probability *= 1 - kv.Value;
+            }
+
+            // Shuffle the remaining items
+            KeyValuePair<string, double>[] pairs = dict.ToArray();
             Utility.Shuffle(Game1.random, pairs);
-            return pairs.ToDictionary(x => x.Key, x => x.Value);
+            Dictionary<string, double> itemsShuffled = pairs.ToDictionary(x => x.Key, x => x.Value);
+
+            // Insert the probability of the 100%
+            if (LastKey != "")
+                itemsShuffled[LastKey] = probability ?? 1;
+
+
+            return itemsShuffled;
         }
 
-        private static Dictionary<String, double> AverageDictionary(List<Dictionary<String, double>> list)
+        private static Dictionary<string, double> AverageDictionary(List<Dictionary<string, double>> list)
         {
-            Dictionary<String, double> sum = new Dictionary<String, double>();
-            foreach (Dictionary<String, double> elem in list)
+            Dictionary<string, double> sum = new();
+            foreach (Dictionary<string, double> elem in list)
             {
-                foreach (KeyValuePair<String, double> pair in elem)
+                foreach (KeyValuePair<string, double> pair in elem)
                 {
                     if (sum.ContainsKey(pair.Key))
-                    {
                         sum[pair.Key] += pair.Value;
-                    }
                     else
-                    {
                         sum.Add(pair.Key, pair.Value);
-                    }
                 }
             }
 
             return MagnifyProbabilities(sum, 1.0 / list.Count);
         }
 
-        private static Dictionary<String, double> MagnifyProbabilities(Dictionary<String, double> dict, double ratio)
+        private static Dictionary<string, double> MagnifyProbabilities(Dictionary<string, double> dict, double ratio)
         {
             return dict.ToDictionary(kv => kv.Key, kv => kv.Value * ratio);
         }
 
         private static Dictionary<TK, TV> ConcatDictionary<TK, TV>(IDictionary<TK, TV> a, Dictionary<TK, TV> b)
         {
-            Dictionary<TK, TV> dict = new Dictionary<TK, TV>(a);
+            Dictionary<TK, TV> dict = new(a);
 
             foreach (KeyValuePair<TK, TV> kv in b.Where(kv => !dict.ContainsKey(kv.Key)))
-            {
                 dict.Add(kv.Key, kv.Value);
-            }
 
             return dict;
         }
 
-        private static int DrawProbBox(Dictionary<String, double> probabilities)
+        private static int DrawProbBox(Dictionary<string, double> probabilities)
         {
             Rectangle window = Game1.game1.Window.ClientBounds;
             SpriteBatch b = Game1.spriteBatch;
@@ -480,7 +535,7 @@ namespace JoysOfEfficiency.Huds
             SpriteFont font = Game1.smallFont;
 
             // Draw Fish
-            foreach (KeyValuePair<String, double> kv in probabilities)
+            foreach (KeyValuePair<string, double> kv in probabilities)
             {
                 if (kv.Key.Contains("SECRET_NOTE")) continue;
                 string text = $"{kv.Value * 100:f1}%";
@@ -509,7 +564,7 @@ namespace JoysOfEfficiency.Huds
             return size.Width;
         }
 
-        private static Size GetProbBoxSize(Dictionary<String, double> probabilities)
+        private static Size GetProbBoxSize(Dictionary<string, double> probabilities)
         {
             int width = 16, height = 48;
             int square = (int)(Game1.tileSize / 1.5);
@@ -517,7 +572,7 @@ namespace JoysOfEfficiency.Huds
             int x_space = 0;
             bool y_max = false;
             SpriteFont font = Game1.smallFont;
-            foreach (KeyValuePair<String, double> kv in probabilities)
+            foreach (KeyValuePair<string, double> kv in probabilities)
             {
                 if (kv.Key.Contains("SECRET_NOTE")) continue;
                 string text = $"{kv.Value * 100:f1}%";
@@ -542,7 +597,7 @@ namespace JoysOfEfficiency.Huds
             return new Size(width, height);
         }
 
-        private static void DrawTackleBox(Dictionary<String, int> attachments, int x_add)
+        private static void DrawTackleBox(Dictionary<string, int> attachments, int x_add)
         {
             Rectangle window = Game1.game1.Window.ClientBounds;
             SpriteBatch b = Game1.spriteBatch;
@@ -576,7 +631,7 @@ namespace JoysOfEfficiency.Huds
             SpriteFont font = Game1.smallFont;
 
             // Add Bait and Tackle
-            foreach (KeyValuePair<String, int> kv in attachments)
+            foreach (KeyValuePair<string, int> kv in attachments)
             {
                 string text = $"{kv.Value}";
                 Item tackle = ItemRegistry.Create(kv.Key, 1);
@@ -587,12 +642,12 @@ namespace JoysOfEfficiency.Huds
             }
         }
 
-        private static Size GetTackleBoxSize(Dictionary<String, int> attachments)
+        private static Size GetTackleBoxSize(Dictionary<string, int> attachments)
         {
             int width = 16, height = 48;
             int square = (int)(Game1.tileSize / 1.5);
             SpriteFont font = Game1.smallFont;
-            foreach (KeyValuePair<String, int> kv in attachments)
+            foreach (KeyValuePair<string, int> kv in attachments)
             {
                 string text = $"{kv.Value}";
                 Vector2 textSize = font.MeasureString(text);
