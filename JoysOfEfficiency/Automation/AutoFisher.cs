@@ -9,7 +9,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.SpecialOrders;
 using StardewValley.Tools;
-using Object = StardewValley.Object;
+using SVObject = StardewValley.Object;
 
 namespace JoysOfEfficiency.Automation
 {
@@ -21,8 +21,8 @@ namespace JoysOfEfficiency.Automation
 
         public static bool AfkMode { get; private set; }
 
-        public static int fishQuality { get; set; }
-        public static bool treasure { get; set; }
+        public static int FishQuality { get; set; }
+        public static bool Treasure { get; set; }
 
         private static bool CatchingTreasure { get; set; }
         private static int AutoFishingCounter { get; set; }
@@ -92,7 +92,7 @@ namespace JoysOfEfficiency.Automation
         {
             ItemMetadata whichFish = rod.whichFish;
             String whichFishName = rod.whichFish.QualifiedItemId;
-            fishQuality = rod.fishQuality;
+            FishQuality = rod.fishQuality;
             string fishID = whichFish.GetParsedData().ItemId;
             int itemCategory = whichFish.GetParsedData().Category;
 
@@ -110,17 +110,22 @@ namespace JoysOfEfficiency.Automation
             who.currentLocation.localSound("coin");
             if (!rod.treasureCaught)
             {
-                Object @object = null;
+                SVObject @object = null;
                 switch (itemCategory)
                 {
-                    case Object.furnitureCategory:
+                    case SVObject.furnitureCategory:
                     {
+                        Logger.Log($"\tFurniture? {fishID}\tItemCategory: {itemCategory}");
                         @object = new Furniture(fishID, Vector2.Zero);
                         break;
                     }
-                    case Object.FishCategory:
+                    case SVObject.junkCategory:
+                    case SVObject.litterCategory:
+                    case SVObject.FishCategory:
+                    default:
                     {
-                        @object = new StardewValley.Object(fishID, 1, false, -1, fishQuality);
+                        Logger.Log($"\tFishy, Litter, or Junky!  {fishID}");
+                        @object = new SVObject(fishID, 1, false, -1, FishQuality);
                         if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
                         {
                             @object.questItem.Value = true;
@@ -140,17 +145,12 @@ namespace JoysOfEfficiency.Automation
 
                         break;
                     }
-                    default:
-                    {
-                        Logger.Log($"How did we get here?!?!  Unhandled case in CollectFish!  ItemCategory: {itemCategory}");
-                        break;
-                    }
                 }
 
                 bool fromFishPond = rod.fromFishPond;
                 who.completelyStopAnimatingOrDoingAction();
                 rod.doneFishing(who, !fromFishPond);
-                if (!Game1.isFestival() && !fromFishPond && (itemCategory == Object.FishCategory && Game1.player.team.specialOrders.Count > 0))
+                if (!Game1.isFestival() && !fromFishPond && (itemCategory == SVObject.FishCategory && Game1.player.team.specialOrders.Count > 0))
                 {
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
                     {
@@ -167,6 +167,7 @@ namespace JoysOfEfficiency.Automation
             }
             else
             {
+                Logger.Log($"Treazhure Cot!");
                 rod.fishCaught = false;
                 rod.showingTreasure = true;
                 who.UsingTool = true;
@@ -176,9 +177,10 @@ namespace JoysOfEfficiency.Automation
                     initialStack = rod.numberOfFishCaught;
                 }
 
-                Object @object = new Object(fishID, initialStack, false, -1, fishQuality);
+                SVObject @object = new SVObject(fishID, initialStack, false, -1, FishQuality);
                 if (Game1.player.team.specialOrders.Count > 0)
                 {
+                    Logger.Log($"\tSpechul Treazhure!");
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
                     {
                         specialOrder.onFishCaught?.Invoke(Game1.player, @object);
@@ -207,7 +209,7 @@ namespace JoysOfEfficiency.Automation
             float bobberBarSpeed = bar.bobberBarSpeed;
             float top = barPos;
 
-            if (treasure && treasureAppearTimer <= 0 && !treasureCaught)
+            if (Treasure && treasureAppearTimer <= 0 && !treasureCaught)
             {
                 if (!CatchingTreasure && distanceFromCatching > 0.7f)
                 {
