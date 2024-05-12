@@ -190,10 +190,9 @@ This utility will try to pull results from nearby machines and give it to the fa
 
 ## List of Valid Machines (for auto-push and auto-pull)
 - MachineTypes [List of Machine Name strings] - You can disable or add new machine types by editing config.json. If a new version of SdV comes out with a new machine, you can add it here without waiting for a new version of JoE!
-  -     "Anvil",
-        "Bait Maker",
+  -     "Bait Maker",
         "Bee House",
-  -     "Bone Mill",
+        "Bone Mill",
         "Cask",
         "Charcoal Kiln",
         "Cheese Press",
@@ -223,7 +222,7 @@ This utility will try to pull results from nearby machines and give it to the fa
         "Statue Of Endless Fortune",
         "Statue Of Perfection",
         "Tapper",
-  -     "Wood Chipper",
+        "Wood Chipper",
         "Worm Bin",
 
 ## Auto Pet Nearby Pets

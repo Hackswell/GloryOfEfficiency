@@ -54,6 +54,10 @@ namespace JoysOfEfficiency.EventHandler
             {
                 FishingProbabilitiesBox.UpdateProbabilities(rod);
                 AutoFisher.AfkFishing();
+                if (Conf.AutoReelRod)
+                {
+                    AutoFisher.AutoReelRod();
+                }
             }
 
             GiftInformationTooltip.UpdateTooltip();
@@ -82,10 +86,6 @@ namespace JoysOfEfficiency.EventHandler
                 if (!Context.CanPlayerMove)
                 {
                     return;
-                }
-                if (Conf.AutoReelRod)
-                {
-                    AutoFisher.AutoReelRod();
                 }
 
                 FarmCleaner.OnNthTickUpdate();

@@ -107,7 +107,6 @@ namespace JoysOfEfficiency.Core
 
         public HashSet<String> MachineTypes { get; set; } = new HashSet<String>()
         {
-            "Anvil",
             "Bait Maker",
             "Bee House",
             "Bone Mill",
