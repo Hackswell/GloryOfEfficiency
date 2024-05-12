@@ -125,13 +125,13 @@ namespace JoysOfEfficiency.Huds
 
         private static Dictionary<string, double> GetFishesMine(MineShaft shaft, Vector2 bobbleTile, int waterDepth, Farmer player, FishingRod rod)
         {
-            Dictionary<String, double> dict = new Dictionary<String, double>();
+            Dictionary<String, double> dict = new();
             double p;
 
             // If player is using training rod in mines, return trash
             if (rod.QualifiedItemId.Contains("TrainingRod"))
             {
-                dict["(O)167"] = 1;
+                dict["(O)168"] = 1;
                 return dict;
             }
 
@@ -171,13 +171,14 @@ namespace JoysOfEfficiency.Huds
                     return dict;
             }
 
-            // Get general fish data on level 10/40, and add Cave Jelly to level 80
+            // Get general fish data on level 10/40, and add Cave Jelly and trash to level 80
             if (level == 10 || level == 40)
                 return ConcatDictionary(dict, GetFishesGeneric(bobbleTile, waterDepth, player, rod, "UndergroundMine"));
             else if (level == 80)
             {
                 p = 0.05 + player.LuckLevel * 0.05;
                 dict.Add("(O)CaveJelly", p);
+                dict.Add("(O)168", 1);
             }
 
             return dict;
@@ -269,7 +270,7 @@ namespace JoysOfEfficiency.Huds
                     continue;
 
                 // We have caught the limit of the fish
-                if (spawn.CatchLimit > 0 && !player.fishCaught.TryGetValue(fishIDQualified, out var value2) && value2[0] >= spawn.CatchLimit)
+                if (spawn.CatchLimit > 0 && player.fishCaught.TryGetValue(fishIDQualified, out var value2) && value2[0] >= spawn.CatchLimit)
                     continue;
 
                 // If fish it not actually a fish
@@ -321,8 +322,10 @@ namespace JoysOfEfficiency.Huds
                                 continue;
 
                             if (Game1.timeOfDay >= startTime && Game1.timeOfDay < stopTime)
+                            {
                                 flagTime = true;
-                            break;
+                                break;
+                            }
                         }
 
                         if (!flagTime)
