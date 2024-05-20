@@ -121,7 +121,7 @@ namespace JoysOfEfficiency.Automation
         {
             SVObject activePlayerItem = Game1.player.ActiveObject;
 
-            if (Context.IsWorldReady && e.Button.IsActionButton() && activePlayerItem != null)
+            if (Config.DontEatThat && Context.IsWorldReady && e.Button.IsActionButton() && activePlayerItem != null)
             {
                 string itemName = activePlayerItem.DisplayName;
 

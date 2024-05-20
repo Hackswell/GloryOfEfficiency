@@ -40,6 +40,7 @@
   "options.AutoPetNearbyPets": "Auto-pet nearby pets",
   "options.AutoPetRadius": "How far tiles to find animals",
   "options.AutoPickUpTrash": "Scavenges nearby trash can",
+  "options.GarbageDisgustsNPCs": "Scavenging garbage disgusts NPCs",
   "options.AutoPullMachineResult": "Auto-pull results from machines",
   "options.AutoReelRod": "Auto reeling when fish nibbled",
   "options.AutoRefillWateringCan": "Auto-refill watering can near water",

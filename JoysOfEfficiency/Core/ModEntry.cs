@@ -5,6 +5,7 @@ using JoysOfEfficiency.Harmony;
 using JoysOfEfficiency.Huds;
 using JoysOfEfficiency.ModCheckers;
 using JoysOfEfficiency.Utils;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -101,6 +102,17 @@ namespace JoysOfEfficiency.Core
                 Logger.Log($"Don't Eat That(tm) is enabled!");
                 FoodAutomation.InitDontEat();
             }
+
+            Game1.graphics.PreferredBackBufferWidth = Conf.WindowWidth;
+            Game1.graphics.PreferredBackBufferHeight = Conf.WindowHeight;
+            var viewport = Game1.graphics.GraphicsDevice.Viewport;
+            viewport.Width = Conf.WindowWidth;
+            viewport.Height = Conf.WindowHeight;
+//            viewport.X = Conf.WindowX;             // Hackswell: seems to do nothing
+//            viewport.Y = Conf.WindowY;             // Hackswell: seems to do nothing
+//            viewport.Bounds = new Rectangle(new Point(Conf.WindowX, Conf.WindowY), new Point(Conf.WindowWidth, Conf.WindowHeight)); // Hackswell: seems to do nothing
+            GameRunner.instance.Window.Position = new Point(Conf.WindowX, Conf.WindowY);        // Hackswell: seems to do nothing
+            Game1.graphics.ApplyChanges();
         }
 
         private static void OnDebugCommand(string name, string[] args)

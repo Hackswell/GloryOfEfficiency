@@ -2,9 +2,7 @@
   "button.awaiting": "Appuyez sur la touche ou le bouton pour l'assigner...",
   "button.conflict": "La touche ou le bouton que vous avez pressé est déjà utilisée.",
   "button.esc": "Appuyez sur la touche Échap pour annuler",
-
   "estimatedprice.title": "Prix de vente estimé",
-
   "fishinfo.quality": "Qualité :",
   "fishinfo.size": "Taille : {0} pouce(s)",
   "fishinfo.species": "Espèce : {0}",
@@ -12,15 +10,10 @@
   "fishinfo.treasure.caught": "Trésor attrapé !",
   "fishinfo.treasure.incoming": "Un trésor apparaîtra dans {0:f1} s.",
   "fishinfo.price": "Prix de vente : {0} po",
-
   "hud.paused": "Jeu en pause.",
-
   "ladder": "L'échelle est apparue !",
-
   "location.awaiting": "Cliquez quelque part pour désigner l'emplacement que vous voulez.",
-
   "monsters.tally": "{0} : {1} éliminés",
-
   "options.AnimalHarvestRadius": "Distance des animaux (cases) ",
   "options.AutoAnimalDoor": "Auto-ouverture/fermeture des portes des animaux",
   "options.AutoCollectCollectibles": "Auto-ramassage des objets récoltables proches",
@@ -87,22 +80,17 @@
   "options.BreakRocks": "Casser les cailloux (pioche)",
   "options.ChopTwigs": "Coupe des branchages (hache)",
   "options.PriceBoxCoordinates": "Coordonnées (haut/gauche) fenêtre info",
-
   "options.FishingTackleInfo": "Afficher les outils (appât et flotteurs)",
   "options.TackleBoxAttach": "Attacher ensemble boîtes infos outils et probabilités poisson",
   "options.TackleBoxLocation": "Coordonnées (haut/gauche) fenêtre info",
   "options.ProbBoxMaxFish": "Nombre max poissons par colonne ",
-
   "options.ThrowPower": "Ajustement force de lancer flotteur ",
   "options.ThresholdStaminaPersentage": "Pourcentage de seuil de stamina pour arrêter la pêche",
-
   "options.ToggleAFKFishing": "Activer/désactiver le mode de pêche AFK ",
-
   "hud.afk.passedout": "La pêche a cessé en raison de votre évanouissement.",
   "hud.afk.on": "La pêche AFK est activée.",
   "hud.afk.off": "La pêche AFK est désactivée.",
   "hud.afk.tired": "La pêche a cessé parce que vous vous sentez fatigué.",
-
   "options.flower": "Fleur : {0}",
   "options.R": "R",
   "options.G": "V",
@@ -113,7 +101,6 @@
   "flower.register": "Les couleurs de {0} seront unifiées.",
   "flower.unregister": "Les couleurs de {0} ne seront plus unifiées.",
   "flower.vanilla": "Vous ne pouvez pas annuler l'enregistrement des fleurs de base.",
-
   "quality.gold": "Or",
   "quality.iridium": "Iridium",
   "quality.normal": "Normal",

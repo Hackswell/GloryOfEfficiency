@@ -58,6 +58,10 @@ namespace JoysOfEfficiency.EventHandler
                 {
                     AutoFisher.AutoReelRod();
                 }
+                if (Conf.CloseTreasureWhenAllLooted && Game1.activeClickableMenu is ItemGrabMenu menu)
+                {
+                    InventoryAutomation.TryCloseItemGrabMenu(menu);
+                }
             }
 
             GiftInformationTooltip.UpdateTooltip();
@@ -69,10 +73,6 @@ namespace JoysOfEfficiency.EventHandler
             if (Game1.currentGameTime == null || !Context.IsWorldReady || !Context.IsPlayerFree)
             {
                 return;
-            }
-            if (Conf.CloseTreasureWhenAllLooted && Game1.activeClickableMenu is ItemGrabMenu menu)
-            {
-                InventoryAutomation.TryCloseItemGrabMenu(menu);
             }
 
             Farmer player = Game1.player;
