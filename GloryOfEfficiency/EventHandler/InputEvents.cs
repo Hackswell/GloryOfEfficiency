@@ -27,7 +27,7 @@ namespace GloryOfEfficiency.EventHandler
             if (args.Button == Conf.ButtonShowMenu)
             {
                 //Open Up Menu
-                JoeMenu.OpenMenu();
+                GoEMenu.OpenMenu();
             }
             else if (args.Button == Conf.ButtonToggleBlackList)
             {

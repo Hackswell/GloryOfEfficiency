@@ -43,14 +43,14 @@ namespace GloryOfEfficiency.Huds
                 scale = 0.7f;
             }
 
-            string speciesText = Util.TryFormat(Translation.Get("fishinfo.species").ToString(), fish.DisplayName);
-            string sizeText = Util.TryFormat(Translation.Get("fishinfo.size").ToString(), GetFinalSize(fishSize));
+            string speciesText = TryFormat(Translation.Get("fishinfo.species").ToString(), fish.DisplayName);
+            string sizeText = TryFormat(Translation.Get("fishinfo.size").ToString(), GetFinalSize(fishSize));
             string qualityText1 = Translation.Get("fishinfo.quality").ToString();
             string qualityText2 = Translation.Get(GetKeyForQuality(fishQuality)).ToString();
-            string incomingText = Util.TryFormat(Translation.Get("fishinfo.treasure.incoming").ToString(), treasureAppearTimer);
+            string incomingText = TryFormat(Translation.Get("fishinfo.treasure.incoming").ToString(), treasureAppearTimer);
             string appearedText = Translation.Get("fishinfo.treasure.appear").ToString();
             string caughtText = Translation.Get("fishinfo.treasure.caught").ToString();
-            string priceText = Util.TryFormat(Translation.Get("fishinfo.price"), salePrice);
+            string priceText = TryFormat(Translation.Get("fishinfo.price"), salePrice);
 
             {
                 Vector2 size = font.MeasureString(speciesText) * scale;
@@ -188,5 +188,21 @@ namespace GloryOfEfficiency.Huds
         {
             return LocalizedContentManager.CurrentLanguageCode == LocalizedContentManager.LanguageCode.en ? inch : (int)Math.Round(inch * 2.54);
         }
+
+        public static string TryFormat(string str, params object[] args)
+        {
+            try
+            {
+                string ret = String.Format(str, args);
+                return ret;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return "";
+        }
+
     }
 }

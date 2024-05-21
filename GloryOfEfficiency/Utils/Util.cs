@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GloryOfEfficiency.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,21 +9,19 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.TerrainFeatures;
-using StardewValley.Tools;
-using static System.String;
 using static StardewValley.Game1;
-using Object = StardewValley.Object;
 
 namespace GloryOfEfficiency.Utils
 {
     using Player = Farmer;
-    using SVObject = Object;
+    using SVObject = StardewValley.Object;
+
     internal class Util
     {
         private static ITranslationHelper Translation => InstanceHolder.Translation;
         private static Config Config => InstanceHolder.Config;
-        private static int _lastItemIndex;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public static bool IsAndroid()
         {
             return Constants.TargetPlatform == GamePlatform.Android;
@@ -48,6 +47,7 @@ namespace GloryOfEfficiency.Utils
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public static float Cap(float f, float min, float max)
         {
             return f < min ? min : (f > max ? max : f);
@@ -78,19 +78,14 @@ namespace GloryOfEfficiency.Utils
         public static void DrawSimpleTextbox(SpriteBatch batch, string text, int x, int y, SpriteFont font, object ctx, Item item = null)
         {
             Vector2 stringSize = text == null ? Vector2.Zero : font.MeasureString(text);
-            if (x < 0)
-            {
-                x = 0;
-            }
-            if (y < 0)
-            {
-                y = 0;
-            }
+            x = x < 0 ? 0 : x;
+            y = y < 0 ? 0 : y;
 
             if (ctx is OptionsElement)
             {
                 y -= 64;
             }
+
             int rightX = (int)stringSize.X + tileSize / 2 + 8;
             if (item != null)
             {
@@ -100,6 +95,7 @@ namespace GloryOfEfficiency.Utils
             {
                 x = viewport.Width - rightX;
             }
+
             int bottomY = (int)stringSize.Y + 32;
             if (item != null)
             {
@@ -110,7 +106,7 @@ namespace GloryOfEfficiency.Utils
                 y = viewport.Height - bottomY;
             }
             DrawWindow(x, y, rightX, bottomY);
-            if (!IsNullOrEmpty(text))
+            if (!String.IsNullOrEmpty(text))
             {
                 Vector2 vector2 = new Vector2(x + tileSize / 4, y + (bottomY - stringSize.Y) / 2 + 8f);
                 Utility.drawTextWithShadow(batch, text, font, vector2, Color.Black);
@@ -170,35 +166,11 @@ namespace GloryOfEfficiency.Utils
             {
                 for (int dy = -radius; dy <= radius; dy++)
                 {
-                    location.Objects.TryGetValue(ov + new Vector2(dx, dy), out Object obj);
+                    location.Objects.TryGetValue(ov + new Vector2(dx, dy), out SVObject obj);
                     if (obj is T t) list.Add(t);
                 }
             }
             return list;
-        }
-
-        public static bool IsPlayerIdle()
-        {
-            if (paused || !shouldTimePass())
-            {
-                //When game is paused or time is stopped already. it's not idle.
-                return false;
-            }
-
-            if (player.CurrentToolIndex != _lastItemIndex)
-            {
-                //When tool index changed, it's not idle.
-                _lastItemIndex = player.CurrentToolIndex;
-                return false;
-            }
-
-            if (player.isMoving() || player.UsingTool)
-            {
-                //When player is moving or is using tools, it's not idle of cause.
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>
@@ -257,36 +229,6 @@ namespace GloryOfEfficiency.Utils
                     Color.White, 0f, Vector2.Zero, pixelZoom + dialogueButtonScale / 150f, SpriteEffects.None, 1f);
         }
 
-        public static int GetMaxCan(WateringCan can)
-        {
-            if (can == null)
-                return -1;
-            int waterCanSize;
-            switch (can.UpgradeLevel)
-            {
-                case 0:
-                    waterCanSize = 40;
-                    break;
-                case 1:
-                    waterCanSize = 55;
-                    break;
-                case 2:
-                    waterCanSize = 70;
-                    break;
-                case 3:
-                    waterCanSize= 85;
-                    break;
-                case 4:
-                    waterCanSize = 100;
-                    break;
-                default:
-                    return -1;
-            }
-
-            return waterCanSize;
-
-        }
-
         public static void DrawColoredBox(SpriteBatch batch, int x, int y, int width, int height, Color color)
         {
             batch.Draw(fadeToBlackRect, new Rectangle(x, y, width, height), color);
@@ -336,7 +278,7 @@ namespace GloryOfEfficiency.Utils
             Color color = Color.WhiteSmoke;
             string text = item.DisplayName;
 
-            if (item is Object obj2)
+            if (item is SVObject obj2)
             {
                 switch (obj2.Type)
                 {
@@ -362,15 +304,6 @@ namespace GloryOfEfficiency.Utils
             addHUDMessage(new HUDMessage(text, 3.0f, true));
         }
 
-        public static int GetTruePrice(Item item)
-        {
-            if (item == null)
-            {
-                return 0;
-            }
-            return item is SVObject obj ? obj.sellToStorePrice() * 2 : item.salePrice();
-        }
-
         public static void DrawString(SpriteBatch batch, SpriteFont font, ref Vector2 location, string text, Color color, float scale, bool next = false)
         {
             Vector2 stringSize = font.MeasureString(text) * scale;
@@ -383,21 +316,6 @@ namespace GloryOfEfficiency.Utils
             {
                 location += new Vector2(0, stringSize.Y + 4);
             }
-        }
-
-        public static string TryFormat(string str, params object[] args)
-        {
-            try
-            {
-                string ret = Format(str, args);
-                return ret;
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return "";
         }
     }
 }

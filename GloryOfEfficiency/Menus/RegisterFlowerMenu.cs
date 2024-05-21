@@ -117,7 +117,7 @@ namespace GloryOfEfficiency.Menus
         /// </summary>
         private static void CloseMenu()
         {
-            if (!(Game1.activeClickableMenu is JoeMenu))
+            if (!(Game1.activeClickableMenu is GoEMenu))
             {
                 return;
             }

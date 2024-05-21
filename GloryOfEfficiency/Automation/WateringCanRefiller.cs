@@ -11,7 +11,7 @@ namespace GloryOfEfficiency.Automation
         public static void RefillWateringCan()
         {
             WateringCan can = Util.FindToolFromInventory<WateringCan>(Config.FindCanFromInventory);
-            if (can == null || can.WaterLeft >= Util.GetMaxCan(can) ||
+            if (can == null || can.WaterLeft >= can.waterCanMax ||
                 !Util.IsThereAnyWaterNear(Game1.player.currentLocation, Game1.player.Tile))
             {
                 return;

@@ -1,16 +1,14 @@
-﻿# Overview
-This is a changelog from 1.5.0
-
-# Changelog
-## 1.5.0
+﻿# Changelog
+## Glory of Efficiency 1.0.0
+- Forked from Joys of Efficiency under GPL.
 - Update build files to work with net6.0 / SdV 1.6 [Hackswell + others]
   - Removed all Reflections and use updated public methods
   - Converted all ObjectIDs from Int32 to string.  Still unoptimized, but should be more compatible.
 - Added config option "AutoDepositSeedMaker" to NOT auto-drop into Seed Makers. [Hackswell]
 - Added new config item "MachineTypes" in config.json.  [Hackswell]
   - All machines are enumerated by default now, and up to date as of SdV 1.6.4.
-  - If a new machine is added to SdV, you can manually add the name to the list. No need to recompile JoE!
-- Added new config item "RunEveryNthTick".  If BalancedMode is FALSE, then run the JoE loops every "RunEveryNthTick"/60.0 seconds.
+  - If a new machine is added to SdV, you can manually add the name to the list. No need to recompile GoE!
+- Added new config item "RunEveryNthTick".  If BalancedMode is FALSE, then run the GoE loops every "RunEveryNthTick"/60.0 seconds.
 - Updated some of the Fishing HUDs and probability code. [Sandman534]
   - New config items:
     - FishingTackleInfo: true / FALSE [default]
@@ -42,7 +40,7 @@ This is a changelog from 1.5.0
 - May still contain inefficient algorithms. Still need to modernize some of the loops with "newly" available methods.
 
 
-## 1.4.9
+## Joys of Efficiency 1.4.9 [Hackswell fork]
 - Updated build files to work with net5.0
 - Updated code to work with HarmonyLib
 - Moved from Newtonsoft.Json to System.Text.Json
@@ -50,54 +48,109 @@ This is a changelog from 1.5.0
 - Added Heavy Tapper to machine list for auto-collection
 - Added new option to NOT auto-add to Seed Makers
 
-## 1.0.22
+## Joys of Efficiency 1.4.1
+- Fixed Harmony related crash.
+- Improved usability around menus.
+
+## Joys of Efficiency 1.4.0
+- Updated for SDV 1.5 and SMAPI 3.8.
+
+
+## 1.3.0
+- Update for SDV 1.4 and SMAPI 3.0
+
+## 1.3.1
+- Fixed AutoFishing moves the bar too quickly.
+- Fixed IdlePause set illegal time after loading or when new day started.
+- Implemented FarmCleaner function.
+- Added DisableConfigLimitation for advanced users.
+
+## 1.3.2
+- Fixed code which may cause DivededByZeroException.
+- Relocated MineInfoGui, so it won't be hidden by the health bar.
+- Fixed CraftingFromChests was not working.
+
+## 1.3.3
+- Fixed AutoHarvest harvesting crops infinitely.
+
+## 1.3.4
+- Removed CraftingFromChests. If you want, I recommend using Convinient Chests instead.
+- Added support for double gates.
+
+## 1.3.5
+- Fixed the problem that AutoGate did not close a fence gate when BalancedMode is enabled.
+- Added coordinates option for Show Shipping Price feature.
+
+## 1.3.6
+- Now FishInformationHud shows correct quality when you are fishing perfectly.
+- Fixed the problem that FishingProbabilitiesBox may throw an exception.
+
+## 1.3.7
+- Added AFK Fishing function.
+
+## 1.3.8
+- Now auto-casting works even if SafeMode is on.
+- Fixed a bug that AutoDepositIngredient consume coffee beans if you don't have enough(<5) beans.
+- Updated chinese translation by Lake1059. Many thanks!
+- Now AutoShakeFruitedPlants supports tea bushes!
+
+## 1.3.9
+- Added Korean translation. (provided by wally232. Many thanks!)
+- Graphical adjustment for Android.
+
+## 1.3.10
+- Adjusted MineInfoGui for Android.
+- Adjusted FishingInfo for Android.
+- Fixed a problem that GetTruePrice might throw NRE.
+
+## Joys of Efficiency 1.0.22
 - Moved Utilities to Util.cs
 - Added Balanced mode
 - Fixed Collect Collectibles feature couldn't work in coop and mine
 - Changed distance determining algorithm
 - Changed AutoShakeFruitedTree to AutoShakeFruitedPlants
 
-## 1.0.23
+## Joys of Efficiency 1.0.23
 - Adjusted GiftInfo Window size
 - Added FasterRunningSpeed Function
 
-## 1.0.24
+## Joys of Efficiency 1.0.24
 - Tweaked Auto Gate Function
 
-## 1.0.25
+## Joys of Efficiency 1.0.25
 - AddedSpeedMultiplier will be capped from 1 to 19
 - Fixed Bug that continuously throws NullReferenceException in barn, coop, etc.
 - Added AutoDepositIngredient and AutoPullMachineResult function.
 - Removed collecting crub pot from AutoHarvest. Use AutoPullMachineResult instead.
 
-## 1.0.26
+## Joys of Efficiency 1.0.26
 - Adjusted some default settings to be more fair.
 - Added AutoPetNearbyPets feature.
 - Added CJBCheatsMenu Detection.
 - Fixed AutoReelRod issue.
 
-## 1.0.27
+## Joys of Efficiency 1.0.27
 - Added ForceMaxCasting option
 
-## 1.0.28
+## Joys of Efficiency 1.0.28
 - Changed Machine Detection algorithm
 - Added ProtectNectarProducingFlower option to AutoHarvest.
 - Removed ForceMaxCasting
 
-## 1.0.29
+## Joys of Efficiency 1.0.29
 - Fixed bug that AutoDepositIngredient couldn't work well with furnace
 - You must face to/back-to-back with fence to activate AutoGate
 
-## 1.0.30
+## Joys of Efficiency 1.0.30
 - Reduced lag when using ProtectNectarProducingFlower.
 - Fixed CanMax value did not changed by its upgrade level.
 - Added FPS Counter.
 - Fixed auto things couldn't work when not holding watering can
 
-## 1.0.31
+## Joys of Efficiency 1.0.31
 - Updated languages
 
-## 1.0.32
+## Joys of Efficiency 1.0.32
 - Removed FPSCounter and FastToolUpgrade because I added it to debug and don't need them anymore. (also, they're a bit cheaty)
 - Removed FasterRunningSpeed because it causes many confliction with other mods or even game itselef.
 - Re-adjusted BalancedMode to be more balanced.
@@ -208,57 +261,3 @@ This is a changelog from 1.5.0
 
 ## 1.2.16
 - Added customized flower color unification.
-
-## 1.3.0
-- Update for SDV 1.4 and SMAPI 3.0
-
-## 1.3.1
-- Fixed AutoFishing moves the bar too quickly.
-- Fixed IdlePause set illegal time after loading or when new day started.
-- Implemented FarmCleaner function.
-- Added DisableConfigLimitation for advanced users.
-
-## 1.3.2
-- Fixed code which may cause DivededByZeroException.
-- Relocated MineInfoGui, so it won't be hidden by the health bar.
-- Fixed CraftingFromChests was not working.
-
-## 1.3.3
-- Fixed AutoHarvest harvesting crops infinitely.
-
-## 1.3.4
-- Removed CraftingFromChests. If you want, I recommend using Convinient Chests instead.
-- Added support for double gates.
-
-## 1.3.5
-- Fixed the problem that AutoGate did not close a fence gate when BalancedMode is enabled.
-- Added coordinates option for Show Shipping Price feature.
-
-## 1.3.6
-- Now FishInformationHud shows correct quality when you are fishing perfectly.
-- Fixed the problem that FishingProbabilitiesBox may throw an exception.
-
-## 1.3.7
-- Added AFK Fishing function.
-
-## 1.3.8
-- Now auto-casting works even if SafeMode is on.
-- Fixed a bug that AutoDepositIngredient consume coffee beans if you don't have enough(<5) beans.
-- Updated chinese translation by Lake1059. Many thanks!
-- Now AutoShakeFruitedPlants supports tea bushes!
-
-## 1.3.9
-- Added Korean translation. (provided by wally232. Many thanks!)
-- Graphical adjustment for Android.
-
-## 1.3.10
-- Adjusted MineInfoGui for Android.
-- Adjusted FishingInfo for Android.
-- Fixed a problem that GetTruePrice might throw NRE.
-
-## 1.4.0
-- Updated for SDV 1.5 and SMAPI 3.8.
-
-## 1.4.1
-- Fixed Harmony related crash.
-- Improved usability around menus.

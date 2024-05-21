@@ -11,7 +11,7 @@ using StardewValley.Menus;
 
 namespace GloryOfEfficiency.Menus
 {
-    internal class JoeMenu : IClickableMenu
+    internal class GoEMenu : IClickableMenu
     {
         private static Config Config => InstanceHolder.Config;
 
@@ -49,10 +49,10 @@ namespace GloryOfEfficiency.Menus
         public static void OpenMenu()
         {
             Game1.playSound("bigSelect");
-            Game1.activeClickableMenu = new JoeMenu(1100, 560);
+            Game1.activeClickableMenu = new GoEMenu(1100, 560);
         }
 
-        internal JoeMenu(int width, int height)
+        internal GoEMenu(int width, int height)
             : base(Game1.viewport.Width / 2 - width / 2, Game1.viewport.Height / 2 - height / 2, width, height, true)
         {
 
@@ -709,7 +709,7 @@ namespace GloryOfEfficiency.Menus
         /// </summary>
         private static void CloseMenu()
         {
-            if (Game1.activeClickableMenu is JoeMenu)
+            if (Game1.activeClickableMenu is GoEMenu)
             {
                 Game1.playSound("bigDeSelect");
                 Game1.exitActiveMenu();

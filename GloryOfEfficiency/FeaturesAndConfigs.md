@@ -1,6 +1,6 @@
 ﻿# Overview
 
-This is a list of features and configs available in [Joys of Efficiency (JoE)](https://www.nexusmods.com/stardewvalley/mods/2162).
+This is a list of features and configs available in [Glory of Efficiency (GoE)](https://github.com/Hackswell/GloryOfEfficiency).
 
 Config description will be like:
 
@@ -12,7 +12,7 @@ Config description will be like:
 # Features
 ## Safe Mode
 
-If Safe Mode is enabled, JoE won't patch the game itself, so it's much safer.
+If Safe Mode is enabled, GoE won't patch the game itself, so it's much safer.
 
 But, some features requiring patching mechanism won't work perfectly.
 
@@ -41,7 +41,7 @@ AutoDigArtifactSpot, AutoDepositIngredient, and AutoPullMachineResult.***
 
 **[CONFIG]**
 - BalancedMode("Automation" bool, default:true) - whether this utility is enabled.
-- RunEveryNthTick("General" uint, default:15) - Run JoE timing loops every Nth tick (1 tick == 1/60 second).
+- RunEveryNthTick("General" uint, default:15) - Run GoE timing loops every Nth tick (1 tick == 1/60 second).
 
 ## Mine Info GUI
 With this utility, you can check how many stones left, and monster kills tally counter, and whether ladder has spawned in mines.
@@ -189,7 +189,7 @@ This utility will try to pull results from nearby machines and give it to the fa
 
 
 ## List of Valid Machines (for auto-push and auto-pull)
-- MachineTypes [List of Machine Name strings] - You can disable or add new machine types by editing config.json. If a new version of SdV comes out with a new machine, you can add it here without waiting for a new version of JoE!
+- MachineTypes [List of Machine Name strings] - You can disable or add new machine types by editing config.json. If a new version of SdV comes out with a new machine, you can add it here without waiting for a new version of GoE!
   -     "Bait Maker",
         "Bee House",
         "Bone Mill",
@@ -333,7 +333,7 @@ You have to select appropriate tool in hotbar to use.
 
 
 ## Don't Eat That
-[Don't Eat That](https://www.nexusmods.com/stardewvalley/mods/1951) was an old mod by [Pyrohead37].  Since it hasn't been updated since 2019, I've decompiled the code, updated it, and added it to JoE! 
+[Don't Eat That](https://www.nexusmods.com/stardewvalley/mods/1951) was an old mod by [Pyrohead37].  Since it hasn't been updated since 2019, I've decompiled the code, updated it, and added it to GoE! 
 
 **[CONFIG]**
 - DontEatCategories [List of Category strings] - Which categories of items NOT to eat. Defaults are:

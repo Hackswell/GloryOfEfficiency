@@ -20,7 +20,7 @@ namespace GloryOfEfficiency.Huds
             {
                 return;
             }
-            int shippingPrice = Game1.getFarm().getShippingBin(Game1.player).Sum(item => Util.GetTruePrice(item) / 2 * item.Stack);
+            int shippingPrice = Game1.getFarm().getShippingBin(Game1.player).Sum(item => GetTruePrice(item) / 2 * item.Stack);
             string title = Translation.Get("estimatedprice.title");
             string text = $" {shippingPrice}G";
             Vector2 sizeTitle = font.MeasureString(title) * 1.2f;
@@ -38,5 +38,15 @@ namespace GloryOfEfficiency.Huds
         {
             return !menu.reverseGrab && menu.showReceivingMenu && menu.context is Farm;
         }
+
+        public static int GetTruePrice(Item item)
+        {
+            if (item == null)
+            {
+                return 0;
+            }
+            return item is StardewValley.Object obj ? obj.sellToStorePrice() * 2 : item.salePrice();
+        }
+
     }
 }

@@ -109,7 +109,6 @@ namespace GloryOfEfficiency.Automation
             if (can == null)
                 return;
 
-            Util.GetMaxCan(can);
             bool watered = false;
             foreach (KeyValuePair<Vector2, HoeDirt> kv in Util.GetFeaturesWithin<HoeDirt>(InstanceHolder.Config.AutoWaterRadius))
             {
