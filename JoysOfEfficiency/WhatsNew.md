@@ -1,7 +1,46 @@
 ﻿# Overview
-This is a changelog from 1.4.9
+This is a changelog from 1.5.0
 
 # Changelog
+## 1.5.0
+- Update build files to work with net6.0 / SdV 1.6 [Hackswell + others]
+  - Removed all Reflections and use updated public methods
+  - Converted all ObjectIDs from Int32 to string.  Still unoptimized, but should be more compatible.
+- Added config option "AutoDepositSeedMaker" to NOT auto-drop into Seed Makers. [Hackswell]
+- Added new config item "MachineTypes" in config.json.  [Hackswell]
+  - All machines are enumerated by default now, and up to date as of SdV 1.6.4.
+  - If a new machine is added to SdV, you can manually add the name to the list. No need to recompile JoE!
+- Added new config item "RunEveryNthTick".  If BalancedMode is FALSE, then run the JoE loops every "RunEveryNthTick"/60.0 seconds.
+- Updated some of the Fishing HUDs and probability code. [Sandman534]
+  - New config items:
+    - FishingTackleInfo: true / FALSE [default]
+    - TackleBoxAttach: true / FALSE [default]
+    - TackleBoxCoordinates: [x, y]
+    - ProbMaxFish: 10 [maximum number of probabilities to list]
+- Added code from "Don't Eat This" mod by [Pyrohead37].  Module hasn't been updated since 2019.
+  - New config items, loaded in this order:
+    - DontEatThat: true / FALSE [default]
+    - DontEatCategories: Which categories of items NOT to eat. Defaults are:
+      - Artisan Goods
+      - Animal Product
+      - Crop
+      - Fish
+      - Flower
+      - Harmful
+      - Vegetable
+    - DontEat: Which specific ITEMS not to eat. It's okay if they overlap categories.  Defaults:
+      - Holly
+      - Oil
+      - Red Mushroom
+      - Sap
+      - Truffle
+    - DoEat: Which specific ITEMS to ALLOW eating.  These are actually _removed_ from the "don't eat" list that was compiled from the above entries.  Defaults:
+      - Mayonnaise
+      - Beer
+      - Green Tea
+- Removed heaps of antiquated code from SdV 1.3/1.4 [Hackswell]
+- May still contain inefficient algorithms. Still need to modernize some of the loops with "newly" available methods.
+
 
 ## 1.4.9
 - Updated build files to work with net5.0

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JoysOfEfficiency.Core;
 using JoysOfEfficiency.Menus;
@@ -10,7 +11,7 @@ using StardewValley.TerrainFeatures;
 
 namespace JoysOfEfficiency.Automation
 {
-    using SVObject = Object;
+    using SVObject = StardewValley.Object;
 
     internal class FlowerIndex
     {
@@ -39,7 +40,8 @@ namespace JoysOfEfficiency.Automation
                     continue;
                 }
                 Color oldColor = crop.tintColor.Value;
-                switch (crop.indexOfHarvest.Value)
+                int harvestIndex = Int32.Parse(crop.indexOfHarvest.Value);
+                switch (harvestIndex)
                 {
                     case FlowerIndex.Poppy:
                         //Poppy
@@ -62,7 +64,7 @@ namespace JoysOfEfficiency.Automation
                         crop.tintColor.Value = Config.FairyRoseColor;
                         break;
                     default:
-                        Color? color = GetCustomizedFlowerColor(crop.indexOfHarvest.Value);
+                        Color? color = GetCustomizedFlowerColor(harvestIndex);
                         if (color != null)
                         {
                             crop.tintColor.Value = color.Value;
@@ -135,32 +137,32 @@ namespace JoysOfEfficiency.Automation
                 return;
             }
 
-            int index = crop.indexOfHarvest.Value;
+            int harvestIndex = Int32.Parse(crop.indexOfHarvest.Value);
 
-            if (IsVanillaFlower(index))
+            if (IsVanillaFlower(harvestIndex))
             {
                 Util.ShowHudMessage(Translation.Get("flower.vanilla"));
                 return;
             }
 
-            if (GetCustomizedFlowerColor(index) != null)
+            if (GetCustomizedFlowerColor(harvestIndex) != null)
             {
                 // Unregister flower
-                Config.CustomizedFlowerColors.Remove(crop.indexOfHarvest.Value);
+                Config.CustomizedFlowerColors.Remove(harvestIndex);
                 InstanceHolder.WriteConfig();
-                Util.ShowHudMessage(string.Format(Translation.Get("flower.unregister"), Util.GetItemName(index)));
+                Util.ShowHudMessage(string.Format(Translation.Get("flower.unregister"), harvestIndex));
                 return;
             }
 
             // Show flower registration menu
             Game1.playSound("bigSelect");
-            Game1.activeClickableMenu = new RegisterFlowerMenu(800, 640, crop.tintColor.Value, index, RegisterFlowerColor);
+            Game1.activeClickableMenu = new RegisterFlowerMenu(800, 640, crop.tintColor.Value, harvestIndex, RegisterFlowerColor);
         }
 
         private static void RegisterFlowerColor(int whichFlower, Color color)
         {
             Config.CustomizedFlowerColors.Add(whichFlower, color);
-            Util.ShowHudMessage(string.Format(Translation.Get("flower.register"), Util.GetItemName(whichFlower)));
+            Util.ShowHudMessage(string.Format(Translation.Get("flower.register"), whichFlower));
         }
     }
 }

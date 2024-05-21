@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
@@ -7,7 +8,8 @@ namespace JoysOfEfficiency.Core
 {
     internal class Config
     {
-
+        public bool BalancedMode { get; set; } = true;
+        public uint RunEveryNthTick { get; set; } = 15;      // If BalancedMode is False, then run every 15th tick by default (0.25 seconds)
         public bool SafeMode { get; set; } = false;
 
         public bool MineInfoGui { get; set; } = true;
@@ -37,6 +39,9 @@ namespace JoysOfEfficiency.Core
         public SButton ToggleAfkFishing { get; set; } = SButton.End;
 
         public bool FishingInfo { get; set; } = true;
+        public bool FishingTackleInfo { get; set; } = false;
+        public bool TackleBoxAttach { get; set; } = false;
+        public Point TackleBoxCoordinates { get; set; } = new Point(40, 500);
 
         public bool AutoGate { get; set; } = true;
 
@@ -44,10 +49,40 @@ namespace JoysOfEfficiency.Core
         public float StaminaToEatRatio { get; set; } = 0.2f;
         public float HealthToEatRatio { get; set; } = 0.2f;
 
+
+        public bool DontEatThat { get; set; } = false;
+
+        public List<String> DontEatCategories { get; set; } = new List<String>()
+        {
+            "Artisan Goods",
+            "Animal Product",
+            "Fish",
+            "Crop",
+            "Vegetable",
+            "Flower",
+            "Harmful",
+        };
+        public List<String> DontEat { get; set; } = new List<String>()
+        {
+            "Holly",
+            "Oil",
+            "Red Mushroom",
+            "Sap",
+            "Truffle",
+        };
+        public List<String> DoEat { get; set; } = new List<String>()
+        {
+            "Mayonnaise",
+            "Beer",
+            "Green Tea",
+        };
+
+
         public bool AutoHarvest { get; set; } = true;
+        public bool AutoHarvestSlimeBalls { get; set; } = true;
         public int AutoHarvestRadius { get; set; } = 1;
         public bool ProtectNectarProducingFlower { get; set; } = true;
-        public List<int> HarvestException { get; set; } = new List<int>();
+        public HashSet<string> HarvestException { get; set; } = new HashSet<string>();
         public SButton ButtonToggleBlackList { get; set; } = Keys.F2.ToSButton();
 
         public bool AutoDestroyDeadCrops { get; set; } = true;
@@ -64,16 +99,54 @@ namespace JoysOfEfficiency.Core
         public bool AutoShakeFruitedPlants { get; set; } = true;
         public int AutoShakeRadius { get; set; } = 1;
 
-        public bool BalancedMode { get; set; } = true;
 
         public bool AutoDepositIngredient { get; set; } = false;
         public bool AutoDepositSeedMaker { get; set; } = false;
         public bool AutoPullMachineResult { get; set; } = true;
         public int MachineRadius { get; set; } = 1;
 
+        public HashSet<String> MachineTypes { get; set; } = new HashSet<String>()
+        {
+            "Bait Maker",
+            "Bee House",
+            "Bone Mill",
+            "Cask",
+            "Charcoal Kiln",
+            "Cheese Press",
+            "Coffee Maker",
+            "Crab Pot",
+            "Crystalarium",
+            "Dehydrator",
+            "Deluxe Worm Bin",
+            "Fish Smoker",
+            "Furnace",
+            "Heavy Furnace",
+            "Heavy Tapper",
+            "Incubator",
+            "Keg",
+            "Loom",
+            "Lightning Rod",
+            "Mayonnaise Machine",
+            "Mushroom Box",
+            "Mushroom Log",
+            "Oil Maker",
+            "Preserves Jar",
+            "Recycling Machine",
+            "Seed Maker",
+            "Sewing Machine",
+            "Slime Egg-Press",
+            "Slime Incubator",
+            "Statue Of Endless Fortune",
+            "Statue Of Perfection",
+            "Tapper",
+            "Wood Chipper",
+            "Worm Bin",
+        };
+
         //Fishing Probabilities
         public bool FishingProbabilitiesInfo { get; set; } = false;
-        public Point ProbBoxCoordinates { get; set; } = new Point(100, 400);
+        public int ProbBoxMaxFish { get; set; } = 10;
+        public Point ProbBoxCoordinates { get; set; } = new Point(40, 500);
         public bool MorePreciseProbabilities { get; set; } = true;
         public int TrialOfExamine { get; set; } = 10;
 
@@ -101,6 +174,7 @@ namespace JoysOfEfficiency.Core
         public int PauseNotificationY { get; set; } = 700;
 
         public bool AutoPickUpTrash { get; set; } = false;
+        public bool GarbageDisgustsNPCs { get; set; } = true;
         public int ScavengingRadius { get; set; } = 2;
 
         public bool AutoShearingAndMilking { get; set; } = true;
@@ -112,5 +186,10 @@ namespace JoysOfEfficiency.Core
         public bool ChopTwigs { get; set; } = false;
 
         public bool DisableConfigLimitation { get; set; } = false;
+
+        public int WindowWidth { get; set; } = 1280;
+        public int WindowHeight { get; set; } = 800;
+        public int WindowX { get; set; } = 950;
+        public int WindowY { get; set; } = 300;
     }
 }

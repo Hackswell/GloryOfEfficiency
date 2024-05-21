@@ -59,6 +59,10 @@
   "options.FishInfo": "물고기 정보 상자 보기",
   "options.FishingInfo": "물고기 정보 상자 보기",
   "options.FishingProbabilitiesInfo": "낚시 확률 표시",
+  "options.FishingTackleInfo": "현재 미끼와 찌 그리기",
+  "options.TackleBoxAttach": "물고기 확률 상자에 태클 상자를 부착합니다.",
+  "options.TackleBoxLocation": "정보 상자의 왼쪽 상단 좌표",
+  "options.ProbBoxMaxFish": "열당 물고기 수",
   "options.GiftInformation": "선물 정보 표시 (선물할 것을 선택 후 NPC 위로 가져 가면 정보 표시)",
   "options.HealthToEatRatio": "자동 먹기 체력 최대치 값",
   "options.IdleTimeout": "게임 일시 정지를 위한 유휴 초과 시간",
@@ -92,8 +96,8 @@
   "hud.afk.passedout": "기절했기 때문에 낚시가 중단되었습니다.",
   "hud.afk.on": "AFK 낚시가 활성화되었습니다.",
   "hud.afk.off": "AFK 낚시가 비활성화되었습니다.",
-  "hud.afk.tired":  "피곤해서 낚시가 중단되었습니다.",
-  
+  "hud.afk.tired": "피곤해서 낚시가 중단되었습니다.",
+
   "options.flower": "꽃:{0}",
   "options.R": "R",
   "options.G": "G",

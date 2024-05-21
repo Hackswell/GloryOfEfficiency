@@ -57,7 +57,7 @@ namespace JoysOfEfficiency.Automation
         private static bool IsPlayerInClose(Fence fence, Farmer player)
         {
             Vector2 oVec = fence.TileLocation;
-            Vector2 pVec = player.getTileLocation();
+            Vector2 pVec = player.Tile;
             return pVec == oVec || 
                    pVec == oVec + new Vector2(1, 0) || pVec == oVec + new Vector2(-1, 0) ||
                    pVec == oVec + new Vector2(0, 1) || pVec == oVec + new Vector2(0, -1);
@@ -72,7 +72,7 @@ namespace JoysOfEfficiency.Automation
             foreach (Fence fence in fences.Where(f => f != null))
             {
                 Vector2 oVec = fence.TileLocation;
-                Vector2 pVec = player.getTileLocation();
+                Vector2 pVec = player.Tile;
                 if (oVec == pVec)
                 {
                     return true;

@@ -12,25 +12,22 @@ namespace JoysOfEfficiency.Huds
 {
     internal class FishInformationHud
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
         private static ITranslationHelper Translation => InstanceHolder.Translation;
 
         public static void DrawFishingInfoBox(SpriteBatch batch, BobberBar bar, SpriteFont font)
         {
             int width = 0, height = 120;
 
-
             float scale = 1.0f;
 
+            String whichFish = bar.whichFish;
+            int fishSize = bar.fishSize;
+            int fishQuality = bar.fishQuality;
+            bool treasure = bar.treasure;
+            bool treasureCaught = bar.treasureCaught;
+            float treasureAppearTimer = bar.treasureAppearTimer;
 
-            int whichFish = Reflection.GetField<int>(bar, "whichFish").GetValue();
-            int fishSize = Reflection.GetField<int>(bar, "fishSize").GetValue();
-            int fishQuality = Reflection.GetField<int>(bar, "fishQuality").GetValue();
-            bool treasure = Reflection.GetField<bool>(bar, "treasure").GetValue();
-            bool treasureCaught = Reflection.GetField<bool>(bar, "treasureCaught").GetValue();
-            float treasureAppearTimer = Reflection.GetField<float>(bar, "treasureAppearTimer").GetValue() / 1000;
-
-            bool perfect = Reflection.GetField<bool>(bar, "perfect").GetValue();
+            bool perfect = bar.perfect;
             if (perfect)
             {
                 if(fishQuality >= 2)

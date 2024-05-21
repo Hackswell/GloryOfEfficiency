@@ -1,7 +1,5 @@
-﻿using JoysOfEfficiency.Core;
-using JoysOfEfficiency.Huds;
+﻿using JoysOfEfficiency.Huds;
 using JoysOfEfficiency.Utils;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -9,8 +7,6 @@ namespace JoysOfEfficiency.Automation
 {
     internal class InventoryAutomation
     {
-        private static IReflectionHelper Reflection => InstanceHolder.Reflection;
-
         private static readonly Logger Logger = new Logger("InventoryAutomation");
 
         public static void LootAllAcceptableItems(ItemGrabMenu menu, bool skipCheck = false)
@@ -81,7 +77,7 @@ namespace JoysOfEfficiency.Automation
                 return;
             }
 
-            if (menu.context is Event && GetEssential(menu))
+            if (menu.context is Event && menu.essential)
             {
                 // You should not emergency close in events (it may stop the dialogue).
                 return;
@@ -95,11 +91,6 @@ namespace JoysOfEfficiency.Automation
             }
 
             menu.exitThisMenu();
-        }
-
-        private static bool GetEssential(ItemGrabMenu menu)
-        {
-            return Reflection.GetField<bool>(menu, "essential").GetValue();
         }
     }
 }

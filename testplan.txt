@@ -1,0 +1,61 @@
+*** APPARENTLY WORKING ***
+--------------------------
++[Fence Gate Automation]
+
++[Farm Cleaner]
++[Watering Can Refiller]
++[Harvest Automation]
+	+Autofill watering can
+	+Water nearby crops
+	+Harvest nearby crops
+		+Does NOT harvest crops on exclusion list
+	+Destroy dead crops
+	+Shake trees / fruit trees
+
++[MachineOperator]
+	+Auto pull
+	+Auto push
+
++[Animal Automation]
+	+Pet nearby animals
+	+Pet nearby pets
+	+Auto shear/milk
+
++[Gift Information Tooltip]
+
++Balanced Mode [every 1s for balanced, super fast otherwise]
+
++[Mine HUD]
+
++[Trash can Scavenger]
+
++[Collectible Collector]
+	+Seed Spots	auto digger
+	+Artifact auto digger
+	+Collect nearby collectibles
+
++[Shipping Estimator]
+
+O[Fishing]
+	OFishing Probabilities Box [O Farm, +Mines, O Submarine, O Witch's Swamp, +EverywhereElse]
+	+Fish Info HUD
+	Autofisher
+	    Auto-reeling
+	    AFK
+	    Treasure
+
+*** UNTESTED ***
+----------------
+
+[Idle Pause]			-- UNTESTED
+
+[Food Automation]		-- UNTESTED
+	Auto eat
+
+[Inventory Automation]  -- UNTESTED
+	Treasure Auto-grab
+
+[Flower Color Unifier]	-- UNTESTED
+	Unify Flower Colors
+
+[Mail Automation]		-- UNTESTED

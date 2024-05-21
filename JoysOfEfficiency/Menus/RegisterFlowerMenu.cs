@@ -41,7 +41,7 @@ namespace JoysOfEfficiency.Menus
             _elements.Add(new EmptyLabel());
             if (item != -1)
             {
-                string s = string.Format(InstanceHolder.Translation.Get("options.flower"), Util.GetItemName(item));
+                string s = string.Format(InstanceHolder.Translation.Get("options.flower"), item.ToString());
                 _elements.Add(new LabelComponent(s));
                 _itemIndex = item;
             }

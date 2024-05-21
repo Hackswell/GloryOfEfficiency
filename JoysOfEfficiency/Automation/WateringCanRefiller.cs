@@ -12,7 +12,7 @@ namespace JoysOfEfficiency.Automation
         {
             WateringCan can = Util.FindToolFromInventory<WateringCan>(Config.FindCanFromInventory);
             if (can == null || can.WaterLeft >= Util.GetMaxCan(can) ||
-                !Util.IsThereAnyWaterNear(Game1.player.currentLocation, Game1.player.getTileLocation()))
+                !Util.IsThereAnyWaterNear(Game1.player.currentLocation, Game1.player.Tile))
             {
                 return;
             }

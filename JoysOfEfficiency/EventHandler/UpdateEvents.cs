@@ -17,19 +17,21 @@ namespace JoysOfEfficiency.EventHandler
     {
         public static bool DayEnded { get; set; }
 
-        private int _ticks;
-
-
         private static Config Conf => InstanceHolder.Config;
 
         private static readonly Logger Logger = new Logger("UpdateEvent");
 
+        // Run Every Nth tick... unless balanced mode, then it's 60 ticks (1 second)
+        private uint NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick;
+
+        // This updates every GameTick (approx 60x / second)
         public void OnGameUpdateEvent(object sender, UpdateTickedEventArgs args)
         {
             OnEveryUpdate();
-            if (args.IsMultipleOf(8))
+            if (args.IsMultipleOf(NthTick))
             {
-                OnGameEighthUpdate();
+                OnGameNthTickUpdate();
+                NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick; // Update in case config has changed...
             }
         }
 
@@ -39,7 +41,7 @@ namespace JoysOfEfficiency.EventHandler
             {
                 return;
             }
-            
+
             IdlePause.OnTickUpdate();
 
             Farmer player = Game1.player;
@@ -51,26 +53,24 @@ namespace JoysOfEfficiency.EventHandler
             if (player.CurrentTool is FishingRod rod)
             {
                 FishingProbabilitiesBox.UpdateProbabilities(rod);
-
                 AutoFisher.AfkFishing();
+                if (Conf.AutoReelRod)
+                {
+                    AutoFisher.AutoReelRod();
+                }
+                if (Conf.CloseTreasureWhenAllLooted && Game1.activeClickableMenu is ItemGrabMenu menu)
+                {
+                    InventoryAutomation.TryCloseItemGrabMenu(menu);
+                }
             }
 
             GiftInformationTooltip.UpdateTooltip();
         }
 
-        private void OnGameEighthUpdate()
+        // Every Nth tick.  Default is 15. 60 == 1.00 seconds; 15 == 0.25 seconds; 6 == 0.10 seconds.
+        private void OnGameNthTickUpdate()
         {
-            if (Game1.currentGameTime == null)
-            {
-                return;
-            }
-
-            if (Conf.CloseTreasureWhenAllLooted && Game1.activeClickableMenu is ItemGrabMenu menu)
-            {
-                InventoryAutomation.TryCloseItemGrabMenu(menu);
-            }
-
-            if (!Context.IsWorldReady || !Context.IsPlayerFree)
+            if (Game1.currentGameTime == null || !Context.IsWorldReady || !Context.IsPlayerFree)
             {
                 return;
             }
@@ -79,33 +79,20 @@ namespace JoysOfEfficiency.EventHandler
             GameLocation location = Game1.currentLocation;
             try
             {
-                if (Conf.AutoReelRod)
+                if (Game1.currentLocation is MineShaft { isFallingDownShaft: true })
                 {
-                    AutoFisher.AutoReelRod();
-                }
-                if (Game1.currentLocation is MineShaft shaft)
-                {
-                    bool isFallingDownShaft = InstanceHolder.Reflection.GetField<bool>(shaft, "isFallingDownShaft").GetValue();
-                    if (isFallingDownShaft)
-                    {
-                        return;
-                    }
+                    return;
                 }
                 if (!Context.CanPlayerMove)
                 {
                     return;
                 }
+
+                FarmCleaner.OnNthTickUpdate();
                 if (Conf.UnifyFlowerColors)
                 {
                     FlowerColorUnifier.UnifyFlowerColors();
                 }
-
-                _ticks = (_ticks + 1) % 8;
-                if (Conf.BalancedMode && _ticks != 0)
-                {
-                    return;
-                }
-                FarmCleaner.OnEighthUpdate();
                 if (Conf.AutoEat)
                 {
                     FoodAutomation.TryToEatIfNeeded(player);
@@ -122,7 +109,6 @@ namespace JoysOfEfficiency.EventHandler
                 {
                     AnimalAutomation.PetNearbyAnimals();
                 }
-
                 if (Conf.AutoShearingAndMilking)
                 {
                     AnimalAutomation.ShearingAndMilking(player);
@@ -138,6 +124,10 @@ namespace JoysOfEfficiency.EventHandler
                 if (Conf.AutoHarvest)
                 {
                     HarvestAutomation.HarvestNearbyCrops(player);
+                }
+                if (Conf.AutoHarvestSlimeBalls)
+                {
+                    HarvestAutomation.HarvestNearbySlimeBalls(player);
                 }
                 if (Conf.AutoDestroyDeadCrops)
                 {
