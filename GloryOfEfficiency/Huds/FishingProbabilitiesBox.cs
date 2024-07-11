@@ -1,6 +1,7 @@
 using GloryOfEfficiency.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewValley;
 using StardewValley.GameData;
 using StardewValley.GameData.Locations;
@@ -29,7 +30,7 @@ namespace GloryOfEfficiency.Huds
         {
             if (rod.isFishing)
             {
-                if (_isFirstTimeOfFishing)
+                if (_isFirstTimeOfFishing && InstanceHolder.Config.FishingProbabilitiesInfo)
                 {
                     // Only run the probablies once when line is cast
                     _isFirstTimeOfFishing = false;
@@ -48,8 +49,10 @@ namespace GloryOfEfficiency.Huds
 
                     // Populate Fish and Tackle
                     _fishingDictionary = GetFishes(location, vector, clearWaterDistance + (flag ? 1 : 0), Game1.player, rod, InstanceHolder.Config.MorePreciseProbabilities ? InstanceHolder.Config.TrialOfExamine : 1);
-                    _attachmentDictionary = GetAttachments(rod);
                 }
+
+                if (InstanceHolder.Config.FishingTackleInfo)
+                    _attachmentDictionary = GetAttachments(rod);
             }
 
             // Clear out lists when not fishing
@@ -419,7 +422,7 @@ namespace GloryOfEfficiency.Huds
             var objectData = Game1.objectData[itemID];
 
             // Fish items that are not fish
-            if (objectData != null && objectData.ContextTags.Contains("fish_nonfish") && !objectData.ContextTags.Contains("counts_as_fish_catch"))
+            if (objectData != null && objectData.ContextTags != null && objectData.ContextTags.Contains("fish_nonfish") && !objectData.ContextTags.Contains("counts_as_fish_catch"))
                 return true;
 
             // JoJa Garbage
