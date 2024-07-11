@@ -16,15 +16,12 @@ namespace GloryOfEfficiency.EventHandler
             events.Input.ButtonPressed += Input.OnButtonPressed;
 
             events.GameLoop.UpdateTicked += Update.OnGameUpdateEvent;
-
-            events.Display.RenderingHud += Graphics.OnRenderHud;
-            events.Display.RenderedActiveMenu += Graphics.OnPostRenderGui;
-
-            events.Display.MenuChanged += Menu.OnMenuChanged;
-
             events.GameLoop.Saving += Save.OnBeforeSave;
             events.GameLoop.DayStarted += Save.OnDayStarted;
 
+            events.Display.RenderingHud += Graphics.OnRenderHud;
+            events.Display.RenderedActiveMenu += Graphics.OnPostRenderGui;
+            events.Display.MenuChanged += Menu.OnMenuChanged;
             events.Display.RenderingHud += FpsCounter.OnHudDraw;
             events.Display.RenderedHud += FpsCounter.PostHudDraw;
         }

@@ -45,8 +45,8 @@ namespace GloryOfEfficiency.Core
             ConfigLimitation.LimitConfigValues();
 
             // Registration commands.
-            Helper.ConsoleCommands.Add("joedebug", "Debug command for JoE", OnDebugCommand);
-            Helper.ConsoleCommands.Add("joerelcon", "Reloading config command for JoE", OnReloadConfigCommand);
+            Helper.ConsoleCommands.Add("goedebug", "Debug command for GoE", OnDebugCommand);
+            Helper.ConsoleCommands.Add("goerelcon", "Reloading config command for GoE", OnReloadConfigCommand);
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
 
             // Check mod compatibilities.
