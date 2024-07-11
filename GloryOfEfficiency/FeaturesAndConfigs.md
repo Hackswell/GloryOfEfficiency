@@ -1,5 +1,7 @@
-﻿# Overview
+﻿# Nexus page (You can download mod releases here)
+https://www.nexusmods.com/stardewvalley/mods/25996
 
+# Overview
 This is a list of features and configs available in [Glory of Efficiency (GoE)](https://github.com/Hackswell/GloryOfEfficiency).
 
 Config description will be like:

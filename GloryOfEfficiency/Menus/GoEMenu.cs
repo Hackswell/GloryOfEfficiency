@@ -15,7 +15,7 @@ namespace GloryOfEfficiency.Menus
     {
         private static Config Config => InstanceHolder.Config;
 
-        private static Logger Logger = new Logger("JoeMenu");
+        private static Logger Logger = new Logger("GoEMenu");
 
         private readonly List<MenuTab> _tabs = new List<MenuTab>();
 
@@ -586,11 +586,11 @@ namespace GloryOfEfficiency.Menus
             }
 
             {
-                // Draw the window title (JoE Settings).
-                int x2 = (Game1.viewport.Width - 400) / 2;
-                drawTextureBox(b, x2, yPositionOnScreen - 108, 400, 100, Color.White);
+                // Draw the window title (GoE Settings).
+                int x2 = (Game1.viewport.Width - 600) / 2;
+                drawTextureBox(b, x2, yPositionOnScreen - 108, 600, 100, Color.White);
 
-                const string str = "JoE Settings";
+                const string str = "Glory of Efficiency Settings";
                 Vector2 size = Game1.dialogueFont.MeasureString(str) * 1.1f;
 
                 Utility.drawTextWithShadow(b, str, Game1.dialogueFont, new Vector2((Game1.viewport.Width - size.X) / 2, yPositionOnScreen - 50 - (int)size.Y / 2), Color.Black, 1.1f);
