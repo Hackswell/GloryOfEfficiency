@@ -33,6 +33,7 @@
   "options.AutoPetNearbyPets": "Auto-caresse des animaux de compagnie proches",
   "options.AutoPetRadius": "Distance des animaux (cases) ",
   "options.AutoPickUpTrash": "Auto-ramassage des déchets à proximité",
+  "options.GarbageDisgustsNPCs": "La fouille des poubelle dégoute les PNJ",
   "options.AutoPullMachineResult": "Auto-récupération des résultats des machines",
   "options.AutoReelRod": "Auto-rembobinage lorsqu'un poisson mord",
   "options.AutoRefillWateringCan": "Auto-rechargement de l’arrosoir près de l'eau",
