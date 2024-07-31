@@ -18,20 +18,17 @@ namespace GloryOfEfficiency.Automation
             }
 
             Farmer player = Game1.player;
+            GameLocation currLocation = Game1.currentLocation;
             int radius = InstanceHolder.Config.BalancedMode ? 1 : InstanceHolder.Config.ScavengingRadius;
-            Layer layer = Game1.currentLocation.Map.GetLayer("Buildings");
-            Point currPos = player.TilePoint;
-            int ox = currPos.X;
-            int oy = currPos.Y;
             for (int dy = -radius; dy <= radius; dy++)
             {
                 for (int dx = -radius; dx <= radius; dx++)
                 {
-                    int x = ox + dx, y = oy + dy;
-
-                    if (layer.Tiles[x, y]?.TileIndex == 78)
+                    int x = player.TilePoint.X + dx;
+                    int y = player.TilePoint.Y + dy;
+                    if (currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").StartsWith("Garbage"))
                     {
-                        string whichGarbage = Game1.currentLocation.doesTileHaveProperty(x, y, "Action", "Buildings");
+                        string whichGarbage = currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").Split(' ')[1];
                         town.CheckGarbage(whichGarbage, new Vector2(x, y), Game1.player, true, Config.GarbageDisgustsNPCs);
                     }
                 }

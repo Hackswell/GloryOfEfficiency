@@ -37,19 +37,14 @@ namespace GloryOfEfficiency.EventHandler
                         continue;
                     }
 
-                    if (location.Objects[loc].name == "Artifact Spot")
+                    string spotName = location.Objects[loc].name;
+                    if (spotName == "Seed Spot" || spotName == "Artifact Spot")
                     {
-                        Logger.Log($"ArtifactSpot: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
+                        Logger.Log($"{spotName}: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
 
-                        location.digUpArtifactSpot(x, y, player);
-                        location.Objects.Remove(loc);
-                        location.terrainFeatures.Add(loc, new HoeDirt());
-                        flag = true;
-                    }
-                    else if (location.Objects[loc].name == "Seed Spot")
-                    {
-                        Logger.Log($"SeedSpot: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
-
+                        // Hackswell: location.digUpArtifactSpot() works fine... except with Farm Type Manager Mod.
+                        //      Just easier to do everything the following way... =shurg=
+                        //
                         // Liberated this from Pathoschild's "TractorMod"
                         player.lastClick = (loc * Game1.tileSize) + new Vector2(Game1.tileSize / 2f);
                         hoe.swingTicker++;

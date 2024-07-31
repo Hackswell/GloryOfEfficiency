@@ -39,8 +39,18 @@ namespace GloryOfEfficiency.Automation
                 {
                     continue;
                 }
+
                 Color oldColor = crop.tintColor.Value;
-                int harvestIndex = Int32.Parse(crop.indexOfHarvest.Value);
+                int harvestIndex;
+                try
+                {
+                    harvestIndex = Int32.Parse(crop.indexOfHarvest.Value);
+                }
+                catch (Exception)
+                {
+                    harvestIndex = 0;
+                }
+
                 switch (harvestIndex)
                 {
                     case FlowerIndex.Poppy:

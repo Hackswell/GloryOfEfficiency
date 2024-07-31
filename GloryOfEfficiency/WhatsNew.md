@@ -1,4 +1,12 @@
 ﻿# Changelog
+## Glory of Efficiency 1.0.1
+- Fixed bug with flower Color Unifier
+- Added proper update key to manifest
+- Auto-dig artifact spots works for extra goodies in SVE
+  - Actually a Farm Type Manager compatibility issue
+- Auto-harvest on IslandWest now collects Golden Walnuts
+- Removed accidental personal commit to change window size. Now compatible with "Default Window Size" mod. 
+
 ## Glory of Efficiency 1.0.0
 - Forked from Joys of Efficiency under GPL.
 - Update build files to work with net6.0 / SdV 1.6 [Hackswell + others]

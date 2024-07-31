@@ -186,10 +186,5 @@ namespace GloryOfEfficiency.Core
         public bool ChopTwigs { get; set; } = false;
 
         public bool DisableConfigLimitation { get; set; } = false;
-
-        public int WindowWidth { get; set; } = 1280;
-        public int WindowHeight { get; set; } = 800;
-        public int WindowX { get; set; } = 950;
-        public int WindowY { get; set; } = 300;
     }
 }

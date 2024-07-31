@@ -63,15 +63,8 @@ namespace GloryOfEfficiency.Automation
                     continue;
                 }
 
-                if (!dirt.crop.harvest((int) loc.X, (int) loc.Y, dirt))
-                {
-                    continue;
-                }
-
-                if (dirt.crop.RegrowsAfterHarvest() == false || dirt.crop.forageCrop.Value)
-                {
-                    dirt.destroyCrop(true);
-                }
+                // Hackswell: We do a performUseAction() rather than the crop.harvest() so we can gather golden walnuts.
+                dirt.performUseAction(loc);
             }
             foreach (IndoorPot pot in Util.GetObjectsWithin<IndoorPot>(radius))
             {
@@ -213,15 +206,25 @@ namespace GloryOfEfficiency.Automation
             }
         }
 
-        public static void ShakeNearbyFruitedTree()     // RCB TODO... Broken for coconut trees [fine with bananas]
+        public static void ShakeNearbyFruitedTree()
         {
+            MeleeWeapon weapon = Util.FindToolFromInventory<MeleeWeapon>(true);
+
             foreach (KeyValuePair<Vector2, TerrainFeature> kv in Util.GetFeaturesWithin<TerrainFeature>(InstanceHolder.Config.AutoShakeRadius))
             {
                 Vector2 loc = kv.Key;
                 TerrainFeature feature = kv.Value;
+
                 switch (feature)
                 {
                     case Tree tree:
+                        // All weapons, including scythe, have zero energy usage to swing.
+                        if (tree.hasMoss.Value && weapon != null )
+                        {
+                            tree.performToolAction(weapon, 0, loc);
+                            Logger.Log($@"Shook mossy tree @{loc}");
+                        }
+
                         if (tree.hasSeed.Value && !tree.stump.Value)
                         {
                             if (!Game1.IsMultiplayer && Game1.player.ForagingLevel < 1)
@@ -229,8 +232,8 @@ namespace GloryOfEfficiency.Automation
                                 break;
                             }
 
-                            int num2;
-                            switch (tree.treeType.Value)    // treeType.Value is now a string!  -RCB
+                            int num2 = -1;
+                            switch (tree.treeType.Value)    // treeType.Value is now a string!  -Hackswell
                             {
                                 case "3":
                                     num2 = 311;     // Pine Cone
@@ -246,7 +249,6 @@ namespace GloryOfEfficiency.Automation
                                     num2 = 88;      // Coconut
                                     break;
                                 default:
-                                    num2 = -1;
                                     break;
                             }
 
@@ -259,11 +261,11 @@ namespace GloryOfEfficiency.Automation
                             if (num2 != -1)
                             {
                                 tree.shake(loc, false);
-                                Logger.Log($@"Shook fruited tree @{loc}");
+                                Logger.Log($@"Shook seeded tree @{loc}");
                             }
                         }
-
                         break;
+
                     case FruitTree fruitTree:
                         if (fruitTree.growthStage.Value >= 4 && fruitTree.fruit.Count > 0 && !fruitTree.stump.Value)
                         {
