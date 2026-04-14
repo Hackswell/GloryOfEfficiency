@@ -59,7 +59,7 @@ namespace GloryOfEfficiency.Automation
 
             if (who.couldInventoryAcceptThisItem(obj))
             {
-                Logger.Log($"picked up {obj.DisplayName} at [{vector.X},{vector.Y}]");
+//                Logger.Trace($"picked up {obj.DisplayName} at [{vector.X},{vector.Y}]");
                 if (who.IsLocalPlayer)
                 {
                     loc.localSound("pickUpItem");

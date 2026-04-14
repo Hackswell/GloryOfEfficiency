@@ -31,12 +31,12 @@ namespace GloryOfEfficiency.Automation
                 if (obj.Name == "Keg" && item.ParentSheetIndex == 433 && item.Stack < 5)
                 {
                     // You don't have enough beans.
-                    Logger.Log($"Trying to deposit {item.Name} into KEG: {obj.Name}. Not enough beans!");
+                    Logger.Trace($"Trying to deposit {item.Name} into KEG: {obj.Name}. Not enough beans!");
                     return;
                 }
 
                 bool accepted = obj.Name == "Furnace" ? CanFurnaceAcceptItem(item, player) : Utility.isThereAnObjectHereWhichAcceptsThisItem(currentLocation, item, (int)loc.X * tileSize, (int)loc.Y * tileSize);
-                Logger.Log($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
+                Logger.Trace($"Trying to deposit ({accepted}) {item.Name} into machine: {obj.Name}");
                 if (obj is Cask)
                 {
                     if (ModEntry.IsCoGOn || ModEntry.IsCaOn)
@@ -57,7 +57,7 @@ namespace GloryOfEfficiency.Automation
                     if (item.Name == "Bait" || item.Name == "Magic Bait")
                     {
                         accepted = true;
-                        Logger.Log($"\tCrab Pot and {item.Name} are now ACCEPTED.");
+                        Logger.Trace($"\tCrab Pot and {item.Name} are now ACCEPTED.");
                     }
                 }
                 else if (obj.Name == "Seed Maker" && InstanceHolder.Config.AutoDepositSeedMaker == false)
@@ -72,11 +72,11 @@ namespace GloryOfEfficiency.Automation
                 if (obj.performObjectDropInAction(item, false, player, true))
                 {
                     player.reduceActiveItemByOne();
-                    Logger.Log($"Item {obj} MANUALLY consuming {item.Name}");
+                    Logger.Trace($"Item {obj} MANUALLY consuming {item.Name}");
                 } else {
-                    Logger.Log($"Item {obj} should have already consumed {item.Name}");
+                    Logger.Trace($"Item {obj} should have already consumed {item.Name}");
                 }
-                Logger.Log($"DONE dropping {item.Name} into {obj}.");
+                Logger.Trace($"DONE dropping {item.Name} into {obj}.");
 
                 return;
             }
@@ -94,7 +94,7 @@ namespace GloryOfEfficiency.Automation
                 }
                 else if (!obj.readyForHarvest.Value)
                 {
-                    Logger.Log($"Time until {obj.Name} ready for collecting item {obj.heldObject.Value.Name}: {obj.MinutesUntilReady} game minutes.");
+                    Logger.Trace($"Time until {obj.Name} ready for collecting item {obj.heldObject.Value.Name}: {obj.MinutesUntilReady} game minutes.");
                     continue;
                 }
 
@@ -106,7 +106,7 @@ namespace GloryOfEfficiency.Automation
 
         private static bool CanFurnaceAcceptItem(Item item, Farmer player)
         {
-            Logger.Log($"{player.Items.ContainsId(Object.coalQID)} ** {item.Stack} ** {item.ParentSheetIndex}");
+            Logger.Trace($"{player.Items.ContainsId(Object.coalQID)} ** {item.Stack} ** {item.ParentSheetIndex}");
 
             // Minimum of one coal in inventory
             if (! player.Items.ContainsId(Object.coalQID, 1))

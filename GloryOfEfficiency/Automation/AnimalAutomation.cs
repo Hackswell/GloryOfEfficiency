@@ -23,8 +23,7 @@ namespace GloryOfEfficiency.Automation
             foreach (KeyValuePair<long, FarmAnimal> kv in farm.animals.Pairs.ToArray())
             {
                 FarmAnimal animal = kv.Value;
-                Logger.Log(
-                    $"Warped {animal.displayName}({animal.shortDisplayType()}) to {animal.displayHouse}@[{animal.home.animalDoor.X}, {animal.home.animalDoor.Y}]");
+                Logger.Trace($"Warped {animal.displayName}({animal.shortDisplayType()}) to {animal.displayHouse}@[{animal.home.animalDoor.X}, {animal.home.animalDoor.Y}]");
                 animal.warpHome();
             }
         }
@@ -33,13 +32,13 @@ namespace GloryOfEfficiency.Automation
         {
             if (Game1.IsWinter)
             {
-                Logger.Log("Don't open the animal door because it's winter");
+                Logger.Trace("Don't open the animal door because it's winter");
                 return;
             }
 
             if (Game1.isRaining || Game1.isSnowing)
             {
-                Logger.Log("Don't open the animal door because of rainy/snowy weather.");
+                Logger.Trace("Don't open the animal door because of rainy/snowy weather.");
                 return;
             }
 
@@ -100,7 +99,7 @@ namespace GloryOfEfficiency.Automation
                 bool wasPet = WasPetToday(pet);
                 if (!wasPet)
                 {
-                    Logger.Log($"Petted {(pet.petType.Value == "Dog" ? "Dog" : "Cat")}'{pet.Name}' @{pet.position}");
+                    Logger.Trace($"Petted {(pet.petType.Value == "Dog" ? "Dog" : "Cat")}'{pet.Name}' @{pet.position}");
                     pet.checkAction(player, location); // Pet pet... lol
 
                 }
@@ -122,7 +121,7 @@ namespace GloryOfEfficiency.Automation
                     continue;
                 }
 
-                Logger.Log($"Petted {animal.displayType}'{animal.Name}' @{animal.position}");
+                Logger.Trace($"Petted {animal.displayType}'{animal.Name}' @{animal.position}");
                 animal.pet(Game1.player);
             }
         }

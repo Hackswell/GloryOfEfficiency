@@ -96,7 +96,7 @@ namespace GloryOfEfficiency.Automation
                 if (Config.DontEatCategories.Contains(categoryName))
                 {
                     _dontEat.Add(itemName);
-                    Logger.Log($"Adding from Category [{item.Key}] {itemName} to the diet\t({categoryName})");
+                    Logger.Trace($"Adding from Category [{item.Key}] {itemName} to the diet\t({categoryName})");
                 }
             }
 
@@ -104,14 +104,14 @@ namespace GloryOfEfficiency.Automation
             foreach (var item in Config.DontEat)
             {
                 _dontEat.Add(item);
-                Logger.Log($"Adding from DontEat {item} to the diet\t");
+                Logger.Trace($"Adding from DontEat {item} to the diet\t");
             }
 
             // REMOVE any items in the DoEat list!   This must be last!
             foreach (var item in Config.DoEat)
             {
                 _dontEat.Remove(item);
-                Logger.Log($"REMOVING from DontEat {item}\t(DoEat exception)");
+                Logger.Trace($"REMOVING from DontEat {item}\t(DoEat exception)");
             }
 
             _dontEat.TrimExcess();
@@ -129,7 +129,7 @@ namespace GloryOfEfficiency.Automation
                 if (_dontEat.Contains(itemName))
                 {
                     activePlayerItem.Edibility = -300;
-                    Logger.Log($"Don't eat that {activePlayerItem.DisplayName}! Spoofing inedibility.");
+                    Logger.Trace($"Don't eat that {activePlayerItem.DisplayName}! Spoofing inedibility.");
                 }
             }
         }

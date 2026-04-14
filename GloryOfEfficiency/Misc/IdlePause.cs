@@ -28,7 +28,7 @@ namespace GloryOfEfficiency.Misc
                     {
                         if (!Paused)
                         {
-                            Logger.Log("Paused game");
+                            Logger.Info("Paused game");
                             Paused = true;
                         }
 
@@ -40,7 +40,7 @@ namespace GloryOfEfficiency.Misc
                     if (Paused)
                     {
                         Paused = false;
-                        Logger.Log("Resumed game");
+                        Logger.Info("Resumed game");
                     }
 
                     TimeoutCounter = 0;

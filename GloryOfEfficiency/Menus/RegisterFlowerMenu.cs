@@ -33,7 +33,7 @@ namespace GloryOfEfficiency.Menus
         {
             _onButtonPressed = buttonCallBack ?? ((i, c) =>
             {
-                Logger.Log($"({i}): {c}");
+                Logger.Trace($"({i}): {c}");
                 exitThisMenu();
             });
 

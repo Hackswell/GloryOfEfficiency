@@ -52,7 +52,7 @@ namespace GloryOfEfficiency.Automation
             {
                 Vector2 loc = kv.Key;
                 HoeDirt dirt = kv.Value;
-                if (dirt.crop != null)   Logger.Log($"Crop: {dirt.crop.indexOfHarvest} ** {dirt.crop.whichForageCrop}");
+//                if (dirt.crop != null)   Logger.Trace($"Crop: {dirt.crop.indexOfHarvest} ** {dirt.crop.whichForageCrop}");
                 if (dirt.crop == null || !dirt.readyForHarvest())
                 {
                     continue;
@@ -163,7 +163,7 @@ namespace GloryOfEfficiency.Automation
                     ? $"{name} has been added to AutoHarvest exception"
                     : $"{name} has been removed from AutoHarvest exception";
                 Util.ShowHudMessage(text, 1000);
-                Logger.Log(text);
+                Logger.Info(text);
             }
         }
 
@@ -222,7 +222,7 @@ namespace GloryOfEfficiency.Automation
                         if (tree.hasMoss.Value && weapon != null )
                         {
                             tree.performToolAction(weapon, 0, loc);
-                            Logger.Log($@"Shook mossy tree @{loc}");
+                            Logger.Trace($@"Shook mossy tree @{loc}");
                         }
 
                         if (tree.hasSeed.Value && !tree.stump.Value)
@@ -261,7 +261,7 @@ namespace GloryOfEfficiency.Automation
                             if (num2 != -1)
                             {
                                 tree.shake(loc, false);
-                                Logger.Log($@"Shook seeded tree @{loc}");
+                                Logger.Trace($@"Shook seeded tree @{loc}");
                             }
                         }
                         break;
@@ -270,7 +270,7 @@ namespace GloryOfEfficiency.Automation
                         if (fruitTree.growthStage.Value >= 4 && fruitTree.fruit.Count > 0 && !fruitTree.stump.Value)
                         {
                             fruitTree.shake(loc, false);
-                            Logger.Log($@"Shook fruited tree @{loc}");
+                            Logger.Trace($@"Shook fruited tree @{loc}");
                         }
                         break;
                 }

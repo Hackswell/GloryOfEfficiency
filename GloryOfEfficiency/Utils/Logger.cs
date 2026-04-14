@@ -24,15 +24,27 @@ namespace GloryOfEfficiency.Utils
         {
             Monitor.Log($"[{Name}]{text}", level);
         }
+        public void Trace(string text, LogLevel level = LogLevel.Trace)
+        {
+            Monitor.Log($"[{Name}]{text}", level);
+        }
+        public void Debug(string text, LogLevel level = LogLevel.Debug)
+        {
+            Monitor.Log($"[{Name}{text}", LogLevel.Debug);
+        }
 
         public void Info(string text, LogLevel level = LogLevel.Info)
         {
             Monitor.Log($"[{Name}]{text}", level);
         }
-
-        public void Error(string text)
+        public void Warn(string text, LogLevel level = LogLevel.Warn)
         {
-            Log(text, LogLevel.Error);
+            Monitor.Log($"[{Name}]{text}", level);
+        }
+
+        public void Error(string text, LogLevel level = LogLevel.Error)
+        {
+            Monitor.Log($"[{Name}]{text}", level);
         }
     }
 }

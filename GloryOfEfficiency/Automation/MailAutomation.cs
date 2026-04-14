@@ -28,7 +28,7 @@ namespace GloryOfEfficiency.Automation
                     Game1.playSound("coin");
                     int remain = Util.AddItemIntoInventory(component.item);
 
-                    Logger.Log($"You collected {component.item.DisplayName}{(stack - remain > 1 ? " x" + (stack - remain) : "")}.");
+                    Logger.Trace($"You collected {component.item.DisplayName}{(stack - remain > 1 ? " x" + (stack - remain) : "")}.");
                     if (remain == 0)
                     {
                         component.item = null;
@@ -45,7 +45,7 @@ namespace GloryOfEfficiency.Automation
                 return;
             }
 
-            Logger.Log($"You started Quest: '{Quest.getQuestFromId(questId).questTitle}'.");
+            Logger.Trace($"You started Quest: '{Quest.getQuestFromId(questId).questTitle}'.");
             Game1.player.addQuest(questId);
             Game1.playSound("newArtifact");
             menu.questID = null;

@@ -26,7 +26,7 @@ namespace GloryOfEfficiency.Utils
                 return;
             }
 
-            Logger.Log("Loaded "+ _configFileName);
+            Logger.Info("Loaded "+ _configFileName);
 
             string jsonContent = File.ReadAllText(_configFileName);
             Entry = JsonSerializer.Deserialize<T>(jsonContent);
@@ -36,7 +36,7 @@ namespace GloryOfEfficiency.Utils
         {
             string jsonContent = JsonSerializer.Serialize(Entry);
             File.WriteAllText(_configFileName, jsonContent);
-            Logger.Log("Saved " + Path.GetFullPath(_configFileName));
+            Logger.Info("Saved " + Path.GetFullPath(_configFileName));
         }
 
         protected abstract T GetNewInstance();

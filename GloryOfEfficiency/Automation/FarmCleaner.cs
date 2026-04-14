@@ -38,17 +38,17 @@ namespace GloryOfEfficiency.Automation
                 if (Config.CutWeeds && IsWeed(obj.Name) && tool is MeleeWeapon melee && melee.isScythe())
                 {
                     CutWeeds(farm, obj, loc);
-                    Logger.Log($"Cut weed @{loc}");
+//                    Logger.Trace($"Cut weed @{loc}");
                 }
 
                 if (Config.BreakRocks && IsRock(obj.Name) && tool is Pickaxe pickaxe && BreakRock(farm, pickaxe, obj, loc))
                 {
-                    Logger.Log($"Broke rock @{loc}");
+//                    Logger.Trace($"Broke rock @{loc}");
                 }
 
                 if (Config.ChopTwigs && IsTwig(obj.Name) && tool is Axe && ChopTwig(farm, obj, loc))
                 {
-                    Logger.Log($"Chopped twig @{loc}");
+//                    Logger.Trace($"Chopped twig @{loc}");
                 }
             }
         }

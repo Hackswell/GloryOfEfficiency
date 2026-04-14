@@ -15,25 +15,25 @@ namespace GloryOfEfficiency.Automation
             {
                 if (menu.shippingBin || ShippingEstimationInfoBox.IsCaShippingBinMenu(menu))
                 {
-                    Logger.Log("Won't do anything to shipping bin");
+//                    Logger.Trace("Won't do anything to shipping bin");
                     return;
                 }
 
                 if (menu.reverseGrab)
                 {
-                    Logger.Log("You can't get item from this menu.");
+//                    Logger.Trace("You can't get item from this menu.");
                     return;
                 }
 
                 if (menu.source == ItemGrabMenu.source_chest)
                 {
-                    Logger.Log("Won't do anything to chest player placed");
+//                    Logger.Trace("Won't do anything to chest player placed");
                     return;
                 }
 
                 if (menu.showReceivingMenu && menu.source == ItemGrabMenu.source_none)
                 {
-                    Logger.Log("showReceivingMenu true but is not gift or fishing chest.");
+//                    Logger.Trace("showReceivingMenu true but is not gift or fishing chest.");
                     return;
                 }
             }
@@ -51,7 +51,7 @@ namespace GloryOfEfficiency.Automation
                 int taken = oldStack - remain;
                 if (taken > 0)
                 {
-                    Logger.Log($"You looted {item.DisplayName}{(taken == 1 ? "" : " x" + taken)}.");
+//                    Logger.Trace($"You looted {item.DisplayName}{(taken == 1 ? "" : " x" + taken)}.");
                 }
 
                 if (remain == 0)

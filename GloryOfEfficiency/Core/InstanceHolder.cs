@@ -12,7 +12,7 @@ namespace GloryOfEfficiency.Core
         private static ModEntry ModInstance { get; set; }
 
         public static Config Config { get; private set; }
-        private static IModHelper Helper => ModInstance.Helper;
+        public static IModHelper Helper => ModInstance.Helper;
         public static ITranslationHelper Translation => Helper.Translation;
         public static Multiplayer Multiplayer => Game1.Multiplayer;
 

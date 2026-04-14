@@ -114,37 +114,37 @@ namespace GloryOfEfficiency.Automation
                 switch (itemCategory)
                 {
                     case SVObject.furnitureCategory:
-                        {
-                            Logger.Log($"\tFurniture? {fishID}\tItemCategory: {itemCategory}");
-                            @object = new Furniture(fishID, Vector2.Zero);
-                            break;
-                        }
+                    {
+//                        Logger.Trace($"\tFurniture? {fishID}\tItemCategory: {itemCategory}");
+                        @object = new Furniture(fishID, Vector2.Zero);
+                        break;
+                    }
                     case SVObject.junkCategory:
                     case SVObject.litterCategory:
                     case SVObject.FishCategory:
                     default:
+                    {
+//                        Logger.Trace($"\tFishy, Litter, or Junky!  {fishID}");
+                        @object = new SVObject(fishID, 1, false, -1, FishQuality);
+                        if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
                         {
-                            Logger.Log($"\tFishy, Litter, or Junky!  {fishID}");
-                            @object = new SVObject(fishID, 1, false, -1, FishQuality);
-                            if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
-                            {
-                                @object.questItem.Value = true;
-                                break;
-                            }
-
-                            if (fishID == "79" || fishID == "842") // Secret Note (79) or Journal Scrap (842)
-                            {
-                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
-                                if (@object == null) return;
-                            }
-
-                            if (rod.numberOfFishCaught > 1)
-                            {
-                                @object.Stack = rod.numberOfFishCaught;
-                            }
-
+                            @object.questItem.Value = true;
                             break;
                         }
+
+                        if (fishID == "79" || fishID == "842") // Secret Note (79) or Journal Scrap (842)
+                        {
+                            @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
+                            if (@object == null) return;
+                        }
+
+                        if (rod.numberOfFishCaught > 1)
+                        {
+                            @object.Stack = rod.numberOfFishCaught;
+                        }
+
+                        break;
+                    }
                 }
 
                 bool fromFishPond = rod.fromFishPond;
@@ -180,7 +180,7 @@ namespace GloryOfEfficiency.Automation
                 SVObject @object = new SVObject(fishID, initialStack, false, -1, FishQuality);
                 if (Game1.player.team.specialOrders.Count > 0)
                 {
-                    Logger.Log($"\tSpechul Treazhure!");
+                    Logger.Trace($"\tSpechul Treazhure!");
                     foreach (SpecialOrder specialOrder in Game1.player.team.specialOrders)
                     {
                         specialOrder.onFishCaught?.Invoke(Game1.player, @object);
@@ -247,7 +247,7 @@ namespace GloryOfEfficiency.Automation
         {
             AfkMode = !AfkMode;
             Util.ShowHudMessageTranslated(AfkMode ? "hud.afk.on" : "hud.afk.off");
-            Logger.Log($"AFK Mode is {(AfkMode ? "enabled" : "disabled")}.");
+            Logger.Info($"AFK Mode is {(AfkMode ? "enabled" : "disabled")}.");
         }
     }
 }

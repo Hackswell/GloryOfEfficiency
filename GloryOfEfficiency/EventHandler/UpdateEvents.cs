@@ -22,13 +22,13 @@ namespace GloryOfEfficiency.EventHandler
         private static readonly Logger Logger = new Logger("UpdateEvent");
 
         // Run Every Nth tick... unless balanced mode, then it's 60 ticks (1 second)
-        private uint NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick;
+        private int NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick;
 
         // This updates every GameTick (approx 60x / second)
         public void OnGameUpdateEvent(object sender, UpdateTickedEventArgs args)
         {
             OnEveryUpdate();
-            if (args.IsMultipleOf(NthTick))
+            if (args.IsMultipleOf((uint)NthTick))
             {
                 OnGameNthTickUpdate();
                 NthTick = (Conf.BalancedMode) ? 60 : Conf.RunEveryNthTick; // Update in case config has changed...

@@ -92,7 +92,7 @@ namespace GloryOfEfficiency.Automation
                 }
 
                 SVObject obj = new SVObject(crop.indexOfHarvest.Value, 1);
-                Logger.Log($"changed {obj.DisplayName} @[{loc.X},{loc.Y}] to color(R:{crop.tintColor.R},G:{crop.tintColor.G},B:{crop.tintColor.B},A:{crop.tintColor.A})");
+                Logger.Trace($"changed {obj.DisplayName} @[{loc.X},{loc.Y}] to color(R:{crop.tintColor.R},G:{crop.tintColor.G},B:{crop.tintColor.B},A:{crop.tintColor.A})");
             }
         }
 
@@ -125,25 +125,25 @@ namespace GloryOfEfficiency.Automation
                     .ToDictionary(p => p.Key, p => p.Value as HoeDirt);
             if (!hoeDirts.ContainsKey(tileLoc))
             {
-                Logger.Log("The given tile is not a hoe dirt.");
+                Logger.Trace("The given tile is not a hoe dirt.");
                 return;
             }
             HoeDirt dirt = hoeDirts[tileLoc];
             Crop crop = dirt.crop;
             if (crop == null)
             {
-                Logger.Log("There is no crop.");
+                Logger.Trace("There is no crop.");
                 return;
             }
             if (crop.dead.Value)
             {
-                Logger.Log("The crop is dead.");
+                Logger.Trace("The crop is dead.");
                 return;
             }
 
             if (!crop.programColored.Value)
             {
-                Logger.Log("That crop may not be a flower.");
+                Logger.Trace("That crop may not be a flower.");
                 return;
             }
 

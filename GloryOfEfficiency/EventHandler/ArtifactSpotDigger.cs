@@ -40,7 +40,7 @@ namespace GloryOfEfficiency.EventHandler
                     string spotName = location.Objects[loc].name;
                     if (spotName == "Seed Spot" || spotName == "Artifact Spot")
                     {
-                        Logger.Log($"{spotName}: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
+//                        Logger.Trace($"{spotName}: {location.Objects[loc].name} at [{loc.X},{loc.Y}]");
 
                         // Hackswell: location.digUpArtifactSpot() works fine... except with Farm Type Manager Mod.
                         //      Just easier to do everything the following way... =shurg=

@@ -1,13 +1,17 @@
 ﻿using System.IO;
+using System.Linq;
 using GloryOfEfficiency.Automation;
 using GloryOfEfficiency.EventHandler;
 using GloryOfEfficiency.Harmony;
 using GloryOfEfficiency.Huds;
+using GloryOfEfficiency.Menus;
 using GloryOfEfficiency.ModCheckers;
 using GloryOfEfficiency.Utils;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
+using StardewModdingAPI.Integrations.GenericModConfigMenu;
 using StardewValley;
 
 namespace GloryOfEfficiency.Core
@@ -21,9 +25,12 @@ namespace GloryOfEfficiency.Core
     {
         public static bool IsCoGOn { get; private set; }
         public static bool IsCaOn { get; private set; }
-        private static Config Conf => InstanceHolder.Config;
+        private static Config Config => InstanceHolder.Config;
+
+        private static IModHelper Helper => InstanceHolder.Helper;
         public static bool DebugMode { get; private set; }
 
+        private static readonly IManifest ModManifest;
         private static readonly Logger Logger = new Logger("Main");
 
         /// <summary>
@@ -52,31 +59,31 @@ namespace GloryOfEfficiency.Core
             // Check mod compatibilities.
             if(ModChecker.IsCoGLoaded(helper))
             {
-                Logger.Log("CasksOnGround detected.");
+                Logger.Debug("CasksOnGround detected.");
                 IsCoGOn = true;
             }
 
             if (ModChecker.IsCaLoaded(helper))
             {
-                Logger.Log("CasksAnywhere detected.");
+                Logger.Debug("CasksAnywhere detected.");
                 IsCaOn = true;
             }
 
             // Do patching stuff
-            if (!Conf.SafeMode)
+            if (!Config.SafeMode)
             {
                 HarmonyPatcher.DoPatching();
             }
             else
             {
-                Logger.Log("Bypassing patching...");
+                Logger.Debug("Bypassing patching...");
             }
 
-            helper.WriteConfig(Conf);
+            helper.WriteConfig(Config);
 
-            if (Conf.DontEatThat)
+            if (Config.DontEatThat)
             {
-                Logger.Log($"Don't Eat That(tm) is enabled!");
+                Logger.Info($"Don't Eat That(tm) is enabled!");
                 Helper.Events.Input.ButtonPressed += FoodAutomation.ButtonPressed;
             }
 
@@ -87,21 +94,23 @@ namespace GloryOfEfficiency.Core
         {
             // Loads configuration from file.
             InstanceHolder.LoadConfig();
-            if (Conf.DontEatThat)
+            if (Config.DontEatThat)
             {
-                Logger.Log($"Don't Eat That(tm) is enabled!");
+                Logger.Info($"Don't Eat That(tm) is enabled!");
                 FoodAutomation.InitDontEat();
             }
-            Logger.Log("Reloaded JoE's config.");
+            Logger.Info("Reloaded GoE's config.");
         }
 
         private static void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            if (Conf.DontEatThat)
+            if (Config.DontEatThat)
             {
-                Logger.Log($"Don't Eat That(tm) is enabled!");
+                Logger.Info($"Don't Eat That(tm) is enabled!");
                 FoodAutomation.InitDontEat();
             }
+
+            GoEMenu.setupGoEMenu();
         }
 
         private static void OnDebugCommand(string name, string[] args)
