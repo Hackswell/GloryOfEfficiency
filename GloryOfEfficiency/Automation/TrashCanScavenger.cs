@@ -1,7 +1,10 @@
 ﻿using GloryOfEfficiency.Core;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.Characters;
+using StardewValley.GameData.GarbageCans;
 using StardewValley.Locations;
+using xTile.Dimensions;
 using xTile.Layers;
 
 namespace GloryOfEfficiency.Automation
@@ -17,6 +20,7 @@ namespace GloryOfEfficiency.Automation
                 return;
             }
 
+
             Farmer player = Game1.player;
             GameLocation currLocation = Game1.currentLocation;
             int radius = InstanceHolder.Config.BalancedMode ? 1 : InstanceHolder.Config.ScavengingRadius;
@@ -26,10 +30,17 @@ namespace GloryOfEfficiency.Automation
                 {
                     int x = player.TilePoint.X + dx;
                     int y = player.TilePoint.Y + dy;
-                    if (currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").StartsWith("Garbage"))
+                    if (currLocation.doesTileHaveProperty(x, y, "Action", "Buildings") == null)
                     {
-                        string whichGarbage = currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").Split(' ')[1];
-                        town.CheckGarbage(whichGarbage, new Vector2(x, y), Game1.player, true, Config.GarbageDisgustsNPCs);
+                        continue;
+                    }
+                    else
+                    {
+                        if (currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").Contains("Garbage"))
+                        {
+                            string whichGarbage = currLocation.doesTileHaveProperty(x, y, "Action", "Buildings").Split(' ')[1];
+                            town.CheckGarbage(whichGarbage, new Vector2(x, y), Game1.player, true, Config.GarbageDisgustsNPCs);
+                        }
                     }
                 }
             }

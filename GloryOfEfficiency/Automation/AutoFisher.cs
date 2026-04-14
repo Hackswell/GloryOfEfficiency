@@ -32,7 +32,7 @@ namespace GloryOfEfficiency.Automation
         {
             Farmer player = Game1.player;
 
-            if(AfkMode && player.passedOut)
+            if (AfkMode && player.passedOut)
             {
                 AfkMode = false;
                 Util.ShowHudMessageTranslated("hud.afk.passedout");
@@ -54,7 +54,7 @@ namespace GloryOfEfficiency.Automation
                     return;
                 }
                 AfkCooltimeCounter++;
-                if(AfkCooltimeCounter < 10)
+                if (AfkCooltimeCounter < 10)
                 {
                     return;
                 }
@@ -114,37 +114,37 @@ namespace GloryOfEfficiency.Automation
                 switch (itemCategory)
                 {
                     case SVObject.furnitureCategory:
-                    {
-                        Logger.Log($"\tFurniture? {fishID}\tItemCategory: {itemCategory}");
-                        @object = new Furniture(fishID, Vector2.Zero);
-                        break;
-                    }
+                        {
+                            Logger.Log($"\tFurniture? {fishID}\tItemCategory: {itemCategory}");
+                            @object = new Furniture(fishID, Vector2.Zero);
+                            break;
+                        }
                     case SVObject.junkCategory:
                     case SVObject.litterCategory:
                     case SVObject.FishCategory:
                     default:
-                    {
-                        Logger.Log($"\tFishy, Litter, or Junky!  {fishID}");
-                        @object = new SVObject(fishID, 1, false, -1, FishQuality);
-                        if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
                         {
-                            @object.questItem.Value = true;
+                            Logger.Log($"\tFishy, Litter, or Junky!  {fishID}");
+                            @object = new SVObject(fishID, 1, false, -1, FishQuality);
+                            if (fishID == GameLocation.CAROLINES_NECKLACE_ITEM_QID)
+                            {
+                                @object.questItem.Value = true;
+                                break;
+                            }
+
+                            if (fishID == "79" || fishID == "842") // Secret Note (79) or Journal Scrap (842)
+                            {
+                                @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
+                                if (@object == null) return;
+                            }
+
+                            if (rod.numberOfFishCaught > 1)
+                            {
+                                @object.Stack = rod.numberOfFishCaught;
+                            }
+
                             break;
                         }
-
-                        if (fishID == "79" || fishID == "842") // Secret Note (79) or Journal Scrap (842)
-                        {
-                            @object = who.currentLocation.tryToCreateUnseenSecretNote(who);
-                            if (@object == null) return;
-                        }
-
-                        if (rod.numberOfFishCaught > 1)
-                        {
-                            @object.Stack = rod.numberOfFishCaught;
-                        }
-
-                        break;
-                    }
                 }
 
                 bool fromFishPond = rod.fromFishPond;
@@ -205,6 +205,7 @@ namespace GloryOfEfficiency.Automation
             float treasurePos = bar.treasurePosition;
             float distanceFromCatching = bar.distanceFromCatching;
             bool treasureCaught = bar.treasureCaught;
+            bool Treasure = bar.treasure;
             float treasureAppearTimer = bar.treasureAppearTimer;
             float bobberBarSpeed = bar.bobberBarSpeed;
             float top = barPos;
